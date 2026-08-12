@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lo 娘衣柜 · 我的裙子收纳</title>
+<style>
+  :root{
+    --pink:#f7c6d5; --pink-soft:#fde8ef; --pink-deep:#e0457a;
+    --cream:#fff8f4; --cream-2:#fdeee6;
+    --brown:#7a5c52; --brown-soft:#a68a80;
+    --radius:18px; --shadow:0 3px 14px rgba(200,150,160,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--cream);color:var(--brown);padding-bottom:60px}
+
+  header{background:linear-gradient(135deg,#ffd9e5,#ffeede);padding:20px 16px 14px;text-align:center;
+    border-bottom-left-radius:26px;border-bottom-right-radius:26px;box-shadow:var(--shadow)}
+  header h1{font-size:23px;color:var(--pink-deep);letter-spacing:1px}
+  header p{font-size:12px;color:var(--brown-soft);margin-top:4px}
+
+  .stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;max-width:1080px;margin:12px auto 4px;padding:0 16px}
+  .stat{background:#fff;border-radius:14px;padding:9px 16px;text-align:center;box-shadow:var(--shadow);min-width:104px}
+  .stat b{display:block;font-size:20px;color:var(--pink-deep)}
+  .stat span{font-size:11px;color:var(--brown-soft)}
+
+  nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0 16px;padding:0 12px}
+  nav button{border:none;background:#fff;color:var(--brown);padding:9px 16px;border-radius:999px;cursor:pointer;
+    font-size:14px;font-weight:600;box-shadow:var(--shadow);transition:.2s}
+  nav button.active{background:var(--pink-deep);color:#fff}
+  nav button:hover{transform:translateY(-1px)}
+
+  .container{max-width:1120px;margin:0 auto;padding:0 16px}
+  .tab{display:none}
+  .tab.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin:6px 0 14px;flex-wrap:wrap;gap:10px}
+  .toolbar h2{font-size:20px;color:var(--brown)}
+  .btn{border:none;cursor:pointer;font-weight:600;font-size:14px;padding:10px 18px;border-radius:999px;
+    background:var(--pink-deep);color:#fff;box-shadow:var(--shadow);transition:.2s}
+  .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  .btn.ghost{background:#fff;color:var(--pink-deep);border:1.5px solid var(--pink)}
+  .btn.ghost:hover{background:var(--pink-soft)}
+  .sel{padding:9px 12px;border-radius:999px;border:1.5px solid var(--pink);background:#fff;color:var(--brown);font-weight:600;cursor:pointer;font-size:13px}
+  .search{padding:9px 14px;border-radius:999px;border:1.5px solid var(--pink);background:#fff;color:var(--brown);font-size:13px;min-width:170px}
+  .search:focus{outline:none;border-color:var(--pink-deep)}
+
+  /* 左侧竖排分类 */
+  .layout{display:flex;gap:18px;align-items:flex-start}
+  .sidebar{position:sticky;top:12px;width:176px;flex-shrink:0;background:#fff;border-radius:18px;
+    padding:10px;box-shadow:var(--shadow);max-height:calc(100vh - 24px);overflow:auto}
+  .side-h{font-size:11px;color:var(--brown-soft);padding:6px 10px 4px;font-weight:700;letter-spacing:1px}
+  .sidebar .cat{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:12px;cursor:pointer;
+    font-size:14px;font-weight:600;transition:.15s;margin-bottom:2px}
+  .sidebar .cat .emo{font-size:17px;width:22px;text-align:center}
+  .sidebar .cat .cnt{margin-left:auto;font-size:11px;background:var(--pink-soft);color:var(--pink-deep);
+    border-radius:999px;padding:1px 7px;font-weight:700}
+  .sidebar .cat:hover{background:var(--pink-soft)}
+  .sidebar .cat.active{background:var(--pink-deep);color:#fff}
+  .sidebar .cat.active .cnt{background:rgba(255,255,255,.35);color:#fff}
+  .main{flex:1;min-width:0}
+
+  .subbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .subchip{font-size:12px;border:1.5px solid var(--pink);background:#fff;color:var(--pink-deep);
+    border-radius:999px;padding:4px 12px;cursor:pointer;font-weight:600;transition:.15s}
+  .subchip:hover{background:var(--pink-soft)}
+  .subchip.on{background:var(--pink-deep);color:#fff;border-color:var(--pink-deep)}
+
+  /* 折叠单品行 */
+  .acc-item{background:#fff;border-radius:16px;box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+  .acc-head{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;user-select:none}
+  .acc-thumb{width:44px;height:44px;border-radius:12px;background:var(--pink-soft);background-size:cover;
+    background-position:center;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+  .acc-head .txt{min-width:0;flex:1}
+  .acc-head .nm{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .acc-head .br{font-size:11.5px;color:var(--pink-deep);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .acc-head .chev{transition:.2s;color:var(--brown-soft);font-size:18px;flex-shrink:0}
+  .acc-item.open .chev{transform:rotate(90deg)}
+  .acc-body{padding:0 16px 16px;display:none}
+  .acc-item.open .acc-body{display:block}
+  .tags{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:220px}
+
+  .st{font-size:10.5px;font-weight:700;border-radius:999px;padding:2.5px 9px;white-space:nowrap}
+  .st.clear{background:#e3f5ea;color:#3a9d6b}
+  .st.waitF{background:#fff3da;color:#c79121}
+  .st.waitD{background:#fde8ef;color:#e0457a}
+  .st.set{background:#ffe1ea;color:#e0457a}
+  .st.alone{background:var(--cream-2);color:var(--brown-soft)}
+  .st.sub{background:var(--pink-soft);color:var(--pink-deep)}
+
+  .detail-grid{display:flex;gap:14px;flex-wrap:wrap}
+  .detail-img{width:150px;height:190px;border-radius:14px;background:var(--pink-soft);background-size:cover;cursor:pointer;
+    background-position:center;display:flex;align-items:center;justify-content:center;font-size:46px;flex-shrink:0;
+    position:relative}
+  .detail-img::after{content:"🔍";position:absolute;bottom:6px;right:8px;font-size:14px;background:rgba(255,255,255,.82);
+    border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .detail-info{flex:1;min-width:230px}
+  .kv{font-size:12.5px;margin-bottom:5px}
+  .kv b{color:var(--pink-deep)}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+  .chip{font-size:11px;background:var(--pink-soft);color:var(--brown);border-radius:999px;padding:2.5px 9px}
+
+  /* 付款明细表 */
+  .pay-tb{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+  .pay-tb th{background:var(--cream-2);color:var(--brown-soft);font-size:11px;text-align:left;padding:5px 8px;font-weight:700}
+  .pay-tb th:first-child{border-top-left-radius:8px;border-bottom-left-radius:8px}
+  .pay-tb th:last-child{border-top-right-radius:8px;border-bottom-right-radius:8px}
+  .pay-tb td{padding:6px 8px;border-bottom:1px dashed var(--cream-2)}
+  .pay-tb .amt{color:var(--pink-deep);font-weight:700;white-space:nowrap}
+  .pay-tb .ord{font-size:10.5px;color:var(--brown-soft);font-family:ui-monospace,Menlo,monospace}
+  .pt{font-size:10.5px;font-weight:700;border-radius:6px;padding:2px 7px;white-space:nowrap}
+  .pt.意向金{background:#f0e9ff;color:#7b5bd6}
+  .pt.定金{background:#fde8ef;color:#e0457a}
+  .pt.尾款{background:#fff3da;color:#c79121}
+  .pt.全款{background:#e3f5ea;color:#3a9d6b}
+  .pt.现货{background:#e3f5ea;color:#3a9d6b}
+  .pt.运费{background:var(--cream-2);color:var(--brown-soft)}
+  .price-split{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .total-row{display:flex;justify-content:flex-end;gap:6px;align-items:baseline;margin-top:8px;font-size:13px}
+  .total-row b{font-size:18px;color:var(--pink-deep)}
+
+  .sub-acc{margin-top:12px;border-top:1px dashed var(--pink);padding-top:10px}
+  .sub-title{font-weight:700;color:var(--pink-deep);font-size:13.5px;margin-bottom:8px}
+  .acc-sub{display:flex;align-items:center;gap:10px;background:var(--cream);border-radius:12px;padding:7px 10px;margin-bottom:7px}
+  .acc-sub-thumb{width:38px;height:38px;border-radius:10px;background:var(--pink-soft);background-size:cover;background-position:center;
+    display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .acc-sub .nm{font-weight:700;font-size:13.5px}
+  .acc-sub .mt{font-size:11px;color:var(--brown-soft)}
+  .row-actions{display:flex;gap:8px;margin-top:12px}
+  .row-actions button{border:1px solid var(--pink);background:#fff;color:var(--pink-deep);border-radius:10px;
+    padding:6px 14px;cursor:pointer;font-size:12.5px;font-weight:600}
+  .row-actions button:hover{background:var(--pink-soft)}
+  .row-actions .del:hover{background:#fde8e8;color:#d9534f;border-color:#f3b5b5}
+
+  /* 成套 */
+  .set-card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:14px}
+  .set-card h3{font-size:17px;color:var(--pink-deep);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .set-card .meta{font-size:12px;color:var(--brown-soft);margin:3px 0 10px}
+  .set-items{display:flex;flex-wrap:wrap;gap:8px}
+  .set-pill{display:flex;align-items:center;gap:7px;background:var(--cream);border-radius:12px;padding:7px 12px;font-size:12.5px}
+  .set-pill .e{font-size:16px}
+  .set-pill .p{color:var(--pink-deep);font-weight:700}
+
+  /* 时间轴 */
+  .timeline{position:relative;padding-left:24px}
+  .timeline::before{content:"";position:absolute;left:7px;top:0;bottom:0;width:3px;background:var(--pink);border-radius:3px}
+  .tl-item{position:relative;background:#fff;border-radius:14px;padding:11px 14px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .tl-item::before{content:"";position:absolute;left:-21px;top:15px;width:14px;height:14px;border-radius:50%;
+    background:var(--pink-deep);border:3px solid var(--cream)}
+  .tl-date{font-size:12.5px;font-weight:700;color:var(--pink-deep)}
+  .tl-title{font-size:15px;font-weight:700;margin:3px 0 2px}
+  .tl-meta{font-size:11.5px;color:var(--brown-soft)}
+  .tl-item.done{opacity:.55;background:#fafafa}
+  .tl-item.done::before{background:#b9b3a8;border-color:#fafafa}
+  .tl-item.done .tl-date,.tl-item.done .tl-title{color:#9a9488}
+  .st.paid{background:#ececec;color:#9a9488}
+  .month-group{margin-bottom:20px}
+  .month-h{font-size:17px;color:var(--pink-deep);margin-bottom:10px;padding-left:4px;font-weight:700}
+  .month-sum{font-size:12px;color:var(--brown-soft);font-weight:600;margin-left:6px}
+  .empty{color:var(--brown-soft);font-size:13px;text-align:center;padding:18px 0}
+
+  /* 想买清单拖拽 */
+  .drag-hint{font-size:12.5px;color:var(--brown-soft);background:#fff;border-radius:12px;padding:9px 14px;
+    box-shadow:var(--shadow);margin-bottom:12px}
+  .wish-group{margin-bottom:16px;min-height:60px;padding:6px;border-radius:14px;transition:.15s}
+  .wish-group h3{font-size:15.5px;margin-bottom:8px}
+  .wish-group.most h3{color:#e0457a}
+  .wish-group.less h3{color:#8a93a0}
+  .wish-group.price h3{color:#c79121}
+  .wish-group.drag-over{outline:2px dashed var(--pink-deep);outline-offset:3px;background:var(--pink-soft)}
+  .acc-item[draggable="true"]{cursor:grab}
+  .acc-item.dragging{opacity:.45}
+
+  /* 日历 */
+  .cal-btn{margin-top:8px;border:1.5px solid var(--pink);background:#fff;color:var(--pink-deep);
+    border-radius:999px;padding:5px 14px;cursor:pointer;font-size:12px;font-weight:600}
+  .cal-btn:hover{background:var(--pink-soft)}
+  .cal-btn.done{background:var(--cream-2);color:var(--brown-soft);border-color:var(--cream-2);cursor:default}
+  .cal-btn.edit{background:#fff;color:var(--brown);border-color:var(--pink-soft)}
+  .cal-btn.edit:hover{background:var(--pink-soft)}
+  .cal-list{display:flex;flex-direction:column;gap:10px}
+  .cal-item{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:13px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+  .cal-ico{width:44px;height:44px;border-radius:12px;background:var(--pink-soft);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+  .cal-main{flex:1;min-width:180px}
+  .cal-main .tt{font-weight:700;font-size:14.5px}
+  .cal-main .mt{font-size:11.5px;color:var(--brown-soft)}
+
+  /* 弹窗 */
+  .overlay{position:fixed;inset:0;background:rgba(122,92,82,.4);display:none;align-items:center;justify-content:center;
+    padding:16px;z-index:50;backdrop-filter:blur(2px)}
+  .overlay.open{display:flex}
+  .modal{background:var(--cream);width:100%;max-width:600px;max-height:92vh;overflow:auto;border-radius:22px;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.2)}
+  .modal h3{color:var(--pink-deep);font-size:19px;margin-bottom:14px}
+  .field{margin-bottom:11px}
+  .field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px;color:var(--brown)}
+  .field input,.field select,.field textarea{width:100%;border:1.5px solid var(--pink);border-radius:10px;padding:8px 11px;
+    font-size:13.5px;background:#fff;color:var(--brown);font-family:inherit}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--pink-deep)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .hint{font-size:11px;color:var(--brown-soft);margin-top:3px}
+  .pay-editor{background:#fff;border-radius:12px;padding:10px;border:1.5px solid var(--pink)}
+  .pay-line{display:grid;grid-template-columns:96px 84px 1fr 30px;gap:6px;margin-bottom:6px;align-items:center}
+  .pay-line input,.pay-line select{border:1px solid var(--pink);border-radius:8px;padding:6px 7px;font-size:12.5px;width:100%;background:#fff;color:var(--brown)}
+  .pay-line .rm{border:none;background:#fde8e8;color:#d9534f;border-radius:8px;cursor:pointer;padding:6px 0;font-weight:700}
+  .add-pay{border:1px dashed var(--pink-deep);background:#fff;color:var(--pink-deep);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:600;width:100%}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--brown);color:#fff;
+    padding:10px 20px;border-radius:999px;font-size:13.5px;opacity:0;transition:.3s;pointer-events:none;z-index:99}
+  .toast.show{opacity:1}
+
+    .svc-pill{font-size:12px;font-weight:700;padding:6px 13px;border-radius:999px;white-space:nowrap}
+  .svc-pill.on{background:#e6f7ec;color:#1f9254}
+  .svc-pill.off{background:#fdeaea;color:#c94040}
+  .svc-help{background:#fff6e5;border:1.5px solid #ffd591;border-radius:var(--radius);padding:14px 18px;margin-bottom:14px;font-size:13px;line-height:1.9}
+  .svc-help ol{margin:6px 0 4px 20px}
+  .svc-help code{background:#fff;border:1px solid #ffd591;border-radius:5px;padding:1px 6px;font-size:12px;color:#b8730d}
+  .crawl-panel{background:#fff;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+  .crawl-row{display:flex;gap:12px;flex-wrap:wrap}
+  .crawl-pick{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:8px;max-height:300px;overflow:auto}
+  .pick-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:11px;font-size:13px;cursor:pointer}
+  .pick-row:hover{background:var(--pink-soft)}
+  .pick-row input{width:16px;height:16px;accent-color:var(--pink-deep);cursor:pointer;flex:none}
+  .pick-row .pf{font-weight:700;min-width:170px}
+  .pick-row .ps{color:var(--brown-soft);font-size:11.5px;flex:1;min-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pick-row .po{font-family:ui-monospace,Consolas,monospace;font-size:10.5px;color:#b09a92}
+  .pick-row .tagimg{font-size:10.5px;background:#e6f7ec;color:#1f9254;border-radius:999px;padding:2px 8px;flex:none}
+  .pick-row .tagno{font-size:10.5px;background:var(--pink-soft);color:var(--pink-deep);border-radius:999px;padding:2px 8px;flex:none}
+  .crawl-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 4px}
+  .btn.mini{padding:6px 13px;font-size:12px}
+  .crawl-h{font-size:14px;color:var(--pink-deep);margin:18px 0 8px}
+  .crawl-log{background:#2f2730;color:#f2e5ea;border-radius:var(--radius);padding:14px 16px;font-size:12.2px;line-height:1.85;
+    font-family:ui-monospace,Consolas,"Courier New",monospace;height:250px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+  .crawl-log .ok{color:#8de0a8}
+  .crawl-log .warn{color:#ffd88a}
+  .crawl-log .err{color:#ff9e9e}
+  .crawl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px}
+  .cr-card{background:#fff;border-radius:14px;box-shadow:var(--shadow);overflow:hidden;text-align:center;padding-bottom:8px}
+  .cr-card img{width:100%;height:148px;object-fit:cover;display:block;background:var(--pink-soft)}
+  .cr-card .fn{font-size:11.5px;font-weight:700;padding:7px 8px 2px;word-break:break-all}
+  .cr-card .sm{font-size:10.5px;color:var(--brown-soft)}
+  .cr-card.bad{opacity:.62}
+  .cr-card .flag{font-size:10px;border-radius:999px;padding:2px 8px;display:inline-block;margin-top:4px}
+  .cr-card .flag.g{background:#e6f7ec;color:#1f9254}
+  .cr-card .flag.y{background:#fff4e0;color:#c07d13}
+  .cr-card .flag.r{background:#fdeaea;color:#c94040}
+  /* 想买清单图片画廊 */
+  .imgs-gallery{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+  .gimg{width:96px;margin:0;cursor:pointer;border:1px solid #f0d9e2;border-radius:10px;overflow:hidden;background:#fff}
+  .gimg img{width:100%;height:96px;object-fit:cover;display:block}
+  .gimg figcaption{font-size:10.5px;color:var(--brown-soft);text-align:center;padding:3px 2px;line-height:1.2}
+  #imgOverlay{position:fixed;inset:0;background:rgba(60,30,45,.82);display:none;align-items:center;justify-content:center;z-index:9999;padding:24px}
+  #imgOverlay.open{display:flex}
+  #imgOverlay img{max-width:92vw;max-height:88vh;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+  #imgOverlay .cap{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#fff;font-size:13px}
+  #imgOverlay .x{position:absolute;top:16px;right:22px;font-size:28px;color:#fff;cursor:pointer}
+
+  @media(max-width:720px){
+    .layout{flex-direction:column}
+    .sidebar{position:static;width:100%;display:flex;flex-wrap:wrap;gap:5px;max-height:none}
+    .sidebar .cat{width:auto;margin:0}
+    .side-h{width:100%}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎀 Lo 娘衣柜 🎀</h1>
+  <p>裙子 · 小物 · 定金尾款 · 想买清单，一柜收好</p>
+</header>
+
+<div class="stats" id="stats"></div>
+
+<nav>
+  <button data-tab="wardrobe" class="active">🧺 我的衣柜</button>
+  <button data-tab="sets">💞 成套搭配</button>
+  <button data-tab="schedule">📅 定金尾款</button>
+  <button data-tab="wishlist">💖 想买清单</button>
+  <button data-tab="calendar">📲 我的日历</button>
+  
+</nav>
+
+<div class="container">
+
+  <!-- 衣柜 -->
+  <section class="tab active" id="tab-wardrobe">
+    <div class="toolbar">
+      <h2>我的衣柜</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input class="search" id="q" placeholder="🔍 搜名字 / 店家 / 颜色" oninput="renderMain()">
+        <button class="btn ghost" onclick="expandAll()">展开全部</button>
+        <button class="btn" onclick="openForm()">+ 添加单品</button>
+      </div>
+    </div>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar"></aside>
+      <div class="main">
+        <div class="subbar" id="subbar"></div>
+        <div id="wardrobeList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 成套 -->
+  <section class="tab" id="tab-sets">
+    <div class="toolbar">
+      <h2>成套搭配</h2>
+      <span class="hint">同一个名字下有 2 件及以上，自动归为一套 💞</span>
+    </div>
+    <div id="setsList"></div>
+  </section>
+
+  <!-- 定金尾款 -->
+  <section class="tab" id="tab-schedule">
+    <div class="toolbar">
+      <h2>定金 / 尾款规划</h2>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="monthFilter" class="sel" onchange="renderSchedule()"></select>
+        <select id="stateFilter" class="sel" onchange="renderSchedule()">
+          <option value="">全部状态</option>
+          <option value="wait">⏳ 只看待付</option>
+          <option value="paid">✅ 只看已付</option>
+        </select>
+        <button class="btn" onclick="openAddPay()">➕ 添加定金/尾款</button>
+        <button class="btn ghost" onclick="writeAllCalendar()">⬇️ 待付全部写入日历</button>
+      </div>
+    </div>
+    <div id="scheduleList"></div>
+  </section>
+
+  <!-- 想买清单 -->
+  <section class="tab" id="tab-wishlist">
+    <div class="toolbar">
+      <h2>想买清单</h2>
+      <button class="btn" onclick="openForm(null,{wish:true})">+ 添加想买</button>
+    </div>
+    <div class="drag-hint">📱 按住卡片拖到别的分组，就能改优先级（像挪手机桌面图标一样）</div>
+    <div id="wishArea"></div>
+  </section>
+
+  <!-- 我的日历 -->
+  <section class="tab" id="tab-calendar">
+    <div class="toolbar">
+      <h2>我的日历提醒</h2>
+      <button class="btn ghost" onclick="clearCalendar()">🗑 清空提醒</button>
+    </div>
+    <div id="calList" class="cal-list"></div>
+  </section>
+
+  
+
+</div>
+
+<!-- 添加/编辑弹窗 -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">添加单品</h3>
+
+    <div class="row2">
+      <div class="field"><label>大类</label><select id="fCat" onchange="syncSubs()"></select></div>
+      <div class="field"><label>子类</label><select id="fSub"></select></div>
+    </div>
+
+    <div class="row2">
+      <div class="field"><label>名字（同名会自动归为一套；配件没名字可留空）</label><input id="fName" placeholder="如：胡桃星星"></div>
+      <div class="field"><label>店家 / 品牌</label><input id="fBrand" placeholder="如：梦境巡游 DreamParade"></div>
+    </div>
+
+    <div class="row2">
+      <div class="field"><label>颜色（逗号分隔）</label><input id="fColors" placeholder="红白, 黑"></div>
+      <div class="field"><label>合适尺码（逗号分隔）</label><input id="fSizes" placeholder="S, M"></div>
+    </div>
+
+    <div class="row2">
+      <div class="field"><label>购入类型</label>
+        <select id="fSource"><option value="">未填</option><option>一手购入</option><option>二手购入</option><option>代购</option></select>
+      </div>
+      <div class="field"><label>状态</label>
+        <select id="fOwned"><option value="1">已购入（进衣柜）</option><option value="0">想买（进想买清单）</option></select>
+      </div>
+    </div>
+
+    <div class="field" id="prioField" style="display:none"><label>想买优先级</label>
+      <select id="fPrio"><option value="most">⭐ 最想买</option><option value="price">💰 价格合适就买</option><option value="less">🌫️ 不太想买</option></select>
+    </div>
+
+    <div class="field"><label>图片</label>
+      <input id="fImg" placeholder="图片链接（可留空）">
+      <input type="file" accept="image/*" onchange="pickImg(this)" style="margin-top:6px;border:none;padding:0;font-size:12px">
+    </div>
+
+    <div class="field">
+      <label>付款记录（意向金 / 定金 / 尾款 / 全款 / 运费）</label>
+      <div class="pay-editor">
+        <div id="payLines"></div>
+        <button class="add-pay" onclick="addPayLine()">+ 加一笔付款</button>
+      </div>
+      <div class="hint">尾款还没付就先别填「尾款」，它会自动进「待付尾款」并可写入日历提醒。</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeForm()">取消</button>
+      <button class="btn" onclick="saveItem()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 日历授权弹窗 -->
+<div class="overlay" id="calOverlay">
+  <div class="modal" style="max-width:420px">
+    <h3>📅 授权写入日历</h3>
+    <p style="font-size:13.5px;line-height:1.7">即将把这条 <b id="calWhat"></b> 添加到你的日历：</p>
+    <div style="background:#fff;border-radius:12px;padding:12px;margin:12px 0;font-size:13px;line-height:1.8">
+      <div id="calPreview"></div>
+    </div>
+    <p style="font-size:12px;color:var(--brown-soft);line-height:1.6">授权后，到日期当天会自动推送提醒；提前 3 天也会再提醒一次，不会错过付款时间。</p>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeCal()">再想想</button>
+      <button class="btn" onclick="confirmCal()">同意并写入</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="payOverlay">
+  <div class="modal" style="max-width:460px">
+    <h3 id="payTitle">➕ 添加定金 / 尾款</h3>
+    <div class="field">
+      <label>所属单品</label>
+      <select id="payItem" class="sel"></select>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>类型</label>
+        <select id="payType" class="sel">
+          <option value="定金">💸 定金</option>
+          <option value="尾款">🎁 尾款</option>
+          <option value="意向金">💗 意向金</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>金额（¥）</label>
+        <input id="payAmt" type="number" min="0" step="0.01" placeholder="如 130">
+      </div>
+    </div>
+    <div class="field">
+      <label>日期 <span class="hint">（编辑时间主要改这里）</span></label>
+      <input id="payDate" type="date">
+    </div>
+    <p id="payNote" style="font-size:12px;color:var(--brown-soft);line-height:1.6;margin:4px 0 0"></p>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closePay()">取消</button>
+      <button class="btn del" id="payDelete" style="display:none" onclick="deletePay()">🗑 删除</button>
+      <button class="btn" onclick="savePay()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== 分类体系（按用户的分类说明） ===================== */
+const TAXONOMY=[
+  {key:"dress", name:"裙子",  emo:"👗", subs:["JSK","OP","SK","套装"]},
+  {key:"inner", name:"内搭",  emo:"👚", subs:["上衣"]},
+  {key:"outer", name:"外搭",  emo:"🧥", subs:["外套","开衫","防晒衫","斗篷","马甲","塑身衣","围裙"]},
+  {key:"bottom",name:"下装",  emo:"👖", subs:["裤装","裙裤"]},
+  {key:"head",  name:"头饰",  emo:"👑", subs:["KC","BNT","礼帽","边夹","贝雷帽"]},
+  {key:"ear",   name:"耳饰",  emo:"💎", subs:["耳夹","耳钉"]},
+  {key:"neck",  name:"颈饰",  emo:"📿", subs:["领结","choker","项链","假领"]},
+  {key:"belt",  name:"腰饰",  emo:"🎗️", subs:["腰带","腰封","腰链","拖尾"]},
+  {key:"body",  name:"上身饰",emo:"🌸", subs:["花丸","胸针","别针夹"]},
+  {key:"hand",  name:"手持物",emo:"🧤", subs:["包","其他特殊道具","权杖","剑"]},
+  {key:"handacc",name:"手饰", emo:"💍", subs:["戒指","手链","手套","手袖"]},
+  {key:"sock",  name:"袜类",  emo:"🧦", subs:["袜子","袜套"]},
+  {key:"shoe",  name:"鞋子",  emo:"👞", subs:["鞋子"]},
+  {key:"petticoat", name:"裙撑", emo:"🩱", subs:["裙撑"]},
+  {key:"sclip", name:"鞋夹",  emo:"🔗", subs:["鞋夹"]}
+];
+const CATMAP={}; TAXONOMY.forEach(c=>CATMAP[c.key]=c);
+const PAY_TYPES=["意向金","定金","尾款","全款","运费"];
+
+/* ===================== 数据层 ===================== */
+const KEY="lo_wardrobe_v16", CKEY="lo_calendar_v5";
+let items=[], calendarEvents=[];
+let editingId=null, activeCat="dress", activeSub="", pendingCal=null;
+const expanded=new Set();
+
+function id(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function load(){
+  try{ const r=localStorage.getItem(KEY); items = r?JSON.parse(r):seed(); }catch(e){ items=seed(); }
+  try{ const c=localStorage.getItem(CKEY); calendarEvents = c?JSON.parse(c):[]; }catch(e){ calendarEvents=[]; }
+}
+function save(){ localStorage.setItem(KEY,JSON.stringify(items)); localStorage.setItem(CKEY,JSON.stringify(calendarEvents)); }
+
+function mk(cat,sub,name,brand,colors,pays,extra){
+  return Object.assign({id:id(),cat,sub,name:name||"",brand:brand||"",colors:colors?colors.split("|"):[],
+    sizes:[],img:"",source:"",owned:true,pays:pays||[],note:""}, extra||{});
+}
+function P(t,a,d,o){ return {t,a,d:d||"",o:o||""}; }
+
+/* 公开示例数据（虚构，不含任何私人信息） */
+function seed(){
+  return [
+  {
+    "id": "demo001",
+    "cat": "dress",
+    "sub": "JSK",
+    "name": "樱花茶会",
+    "brand": "棉花糖工坊",
+    "colors": [
+      "粉白"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "定金",
+        "a": 80,
+        "d": "2026-03-01",
+        "o": ""
+      },
+      {
+        "t": "尾款",
+        "a": 120,
+        "d": "2026-04-10",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 10,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo002",
+    "cat": "dress",
+    "sub": "OP",
+    "name": "星空夜曲",
+    "brand": "月光茶会",
+    "colors": [
+      "藏蓝",
+      "银"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "全款",
+        "a": 368,
+        "d": "2026-02-14",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 12,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo003",
+    "cat": "dress",
+    "sub": "SK",
+    "name": "薄荷饼干",
+    "brand": "小蔷薇屋",
+    "colors": [
+      "薄荷绿"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "定金",
+        "a": 60,
+        "d": "2026-05-02",
+        "o": ""
+      },
+      {
+        "t": "尾款",
+        "a": 90,
+        "d": "2026-06-08",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 8,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo004",
+    "cat": "inner",
+    "sub": "上衣",
+    "name": "奶油蕾丝内搭",
+    "brand": "星河洛丽塔",
+    "colors": [
+      "米白"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "现货",
+        "a": 59,
+        "d": "2026-07-01",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 6,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo005",
+    "cat": "outer",
+    "sub": "开衫",
+    "name": "莓果针织开衫",
+    "brand": "云朵甜心",
+    "colors": [
+      "浅粉"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "全款",
+        "a": 128,
+        "d": "2026-04-20",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 10,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo006",
+    "cat": "outer",
+    "sub": "斗篷",
+    "name": "雪夜斗篷",
+    "brand": "雾岛原创",
+    "colors": [
+      "灰紫"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "定金",
+        "a": 100,
+        "d": "2026-03-15",
+        "o": ""
+      },
+      {
+        "t": "尾款",
+        "a": 150,
+        "d": "2026-04-22",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 12,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo007",
+    "cat": "head",
+    "sub": "KC",
+    "name": "蝴蝶结KC",
+    "brand": "棉花糖工坊",
+    "colors": [
+      "酒红"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "现货",
+        "a": 39,
+        "d": "2026-06-30",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 6,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo008",
+    "cat": "ear",
+    "sub": "耳夹",
+    "name": "珍珠耳夹",
+    "brand": "月光茶会",
+    "colors": [
+      "白"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "全款",
+        "a": 45,
+        "d": "2026-05-18",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo009",
+    "cat": "neck",
+    "sub": "choker",
+    "name": "丝绒choker",
+    "brand": "小蔷薇屋",
+    "colors": [
+      "黑"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "现货",
+        "a": 29,
+        "d": "2026-07-05",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 6,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo010",
+    "cat": "belt",
+    "sub": "腰封",
+    "name": "缎带腰封",
+    "brand": "星河洛丽塔",
+    "colors": [
+      "香槟"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "定金",
+        "a": 40,
+        "d": "2026-04-02",
+        "o": ""
+      },
+      {
+        "t": "尾款",
+        "a": 60,
+        "d": "2026-05-09",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo011",
+    "cat": "sock",
+    "sub": "袜子",
+    "name": "蕾丝船袜",
+    "brand": "云朵甜心",
+    "colors": [
+      "白"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "全款",
+        "a": 25,
+        "d": "2026-06-11",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 6,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo012",
+    "cat": "shoe",
+    "sub": "鞋子",
+    "name": "圆头小皮鞋",
+    "brand": "雾岛原创",
+    "colors": [
+      "黑"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "全款",
+        "a": 199,
+        "d": "2026-03-28",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 12,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo013",
+    "cat": "hand",
+    "sub": "包",
+    "name": "珍珠手拿包",
+    "brand": "棉花糖工坊",
+    "colors": [
+      "粉"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "定金",
+        "a": 70,
+        "d": "2026-05-20",
+        "o": ""
+      },
+      {
+        "t": "尾款",
+        "a": 110,
+        "d": "2026-06-26",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 10,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo014",
+    "cat": "petticoat",
+    "sub": "裙撑",
+    "name": "双层裙撑",
+    "brand": "月光茶会",
+    "colors": [
+      "白"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": true,
+    "pays": [
+      {
+        "t": "现货",
+        "a": 89,
+        "d": "2026-07-08",
+        "o": ""
+      },
+      {
+        "t": "运费",
+        "a": 8,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": ""
+  },
+  {
+    "id": "demo015",
+    "cat": "dress",
+    "sub": "OP",
+    "name": "蔷薇庭院OP",
+    "brand": "小蔷薇屋",
+    "colors": [
+      "藕粉"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": false,
+    "pays": [
+      {
+        "t": "定金",
+        "a": 120,
+        "d": "",
+        "o": ""
+      },
+      {
+        "t": "尾款",
+        "a": 180,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": "",
+    "prio": "most"
+  },
+  {
+    "id": "demo016",
+    "cat": "dress",
+    "sub": "JSK",
+    "name": "仲夏童话JSK",
+    "brand": "星河洛丽塔",
+    "colors": [
+      "天蓝"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": false,
+    "pays": [
+      {
+        "t": "全款",
+        "a": 428,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": "",
+    "prio": "price"
+  },
+  {
+    "id": "demo017",
+    "cat": "outer",
+    "sub": "外套",
+    "name": "羊毛短外套",
+    "brand": "云朵甜心",
+    "colors": [
+      "驼色"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": false,
+    "pays": [
+      {
+        "t": "现货",
+        "a": 358,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": "",
+    "prio": "price"
+  },
+  {
+    "id": "demo018",
+    "cat": "head",
+    "sub": "BNT",
+    "name": "缎带BNT",
+    "brand": "雾岛原创",
+    "colors": [
+      "鹅黄"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": false,
+    "pays": [
+      {
+        "t": "全款",
+        "a": 55,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": "",
+    "prio": "most"
+  },
+  {
+    "id": "demo019",
+    "cat": "handacc",
+    "sub": "手袖",
+    "name": "蕾丝手袖",
+    "brand": "棉花糖工坊",
+    "colors": [
+      "白"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": false,
+    "pays": [
+      {
+        "t": "定金",
+        "a": 30,
+        "d": "",
+        "o": ""
+      },
+      {
+        "t": "尾款",
+        "a": 45,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": "",
+    "prio": "price"
+  },
+  {
+    "id": "demo020",
+    "cat": "body",
+    "sub": "胸针",
+    "name": "绣球花胸针",
+    "brand": "月光茶会",
+    "colors": [
+      "紫"
+    ],
+    "sizes": [],
+    "img": "",
+    "imgs": [],
+    "source": "示例数据·可自由编辑",
+    "owned": false,
+    "pays": [
+      {
+        "t": "现货",
+        "a": 49,
+        "d": "",
+        "o": ""
+      }
+    ],
+    "note": "",
+    "prio": "price"
+  }
+];
+}
+
+/* ===================== 计算 ===================== */
+function has(it,t){ return (it.pays||[]).some(p=>p.t===t); }
+function sumPay(it){ return (it.pays||[]).reduce((s,p)=>s+(Number(p.a)||0),0); }
+function payState(it){
+  if(has(it,"全款")||has(it,"尾款")) return "clear";
+  if(has(it,"定金")) return "waitF";
+  if(has(it,"意向金")) return "waitD";
+  return "none";
+}
+const STATE_LABEL={clear:"✅ 已付清",waitF:"⏳ 待付尾款",waitD:"💗 已交意向金",none:"— 未付款"};
+function label(it){ return it.name || it.sub || CATMAP[it.cat].name; }
+function emo(it){ return CATMAP[it.cat] ? CATMAP[it.cat].emo : "🎀"; }
+/* 首图：有人台图用人台图，没人台图用参考图，都没有才用 img */
+function bestImg(it){
+  if(!it.imgs || !it.imgs.length) return it.img||"";
+  const m=it.imgs.find(im=>/人台图/.test(im.label||''));
+  if(m) return m.src;
+  const r=it.imgs.find(im=>/参考图/.test(im.label||''));
+  if(r) return r.src;
+  return it.imgs[0].src || it.img || "";
+}
+function bestRaw(it){
+  if(!it.imgs || !it.imgs.length) return it.imgRaw || it.img || "";
+  const m=it.imgs.find(im=>/人台图/.test(im.label||''));
+  if(m && m.raw) return m.raw;
+  const r=it.imgs.find(im=>/参考图/.test(im.label||''));
+  if(r && r.raw) return r.raw;
+  if(it.imgs[0] && it.imgs[0].raw) return it.imgs[0].raw;
+  return it.imgRaw || it.imgs[0].src || it.img || "";
+}
+function isSetName(n){ return n && n.trim() && n.toLowerCase()!=="none" && n!=="无"; }
+/* 套装：同名 ≥2 件（排除 name 为空或 none 的零散单品） */
+function setMap(){
+  const m={};
+  items.forEach(it=>{ if(isSetName(it.name)){ (m[it.name]=m[it.name]||[]).push(it); } });
+  Object.keys(m).forEach(k=>{ if(m[k].length<2) delete m[k]; });
+  return m;
+}
+function inSet(it){ return !!(isSetName(it.name) && items.filter(x=>x.name===it.name).length>1); }
+
+/* ===================== 渲染 ===================== */
+function render(){ renderStats(); renderSidebar(); renderSubbar(); renderMain(); renderSets(); renderSchedule(); renderWishlist(); renderCalendar(); renderCrawl(); }
+
+function renderStats(){
+  const own=items.filter(i=>i.owned);
+  const dress=own.filter(i=>i.cat==="dress").length;
+  const spent=own.reduce((s,i)=>s+sumPay(i),0);
+  const waitF=own.filter(i=>payState(i)==="waitF").length;
+  const sm=setMap();
+  const sets=Object.keys(sm).filter(k=>sm[k].some(i=>i.owned)).length;  // 只数已开始的套装
+  const wish=items.filter(i=>!i.owned).length;
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><b>${own.length}</b><span>衣柜单品</span></div>
+    <div class="stat"><b>${dress}</b><span>裙子</span></div>
+    <div class="stat"><b>${sets}</b><span>成套搭配</span></div>
+    <div class="stat"><b>？？？？元</b><span>已花费</span></div>
+    <div class="stat"><b>${waitF}</b><span>待付尾款</span></div>
+    <div class="stat"><b>${wish}</b><span>想买清单</span></div>`;
+}
+
+function renderSidebar(){
+  const own=items.filter(i=>i.owned);
+  let html='<div class="side-h">衣橱分类</div>';
+  html+=`<div class="cat ${activeCat==='all'?'active':''}" onclick="pickCat('all')"><span class="emo">🧺</span>全部<span class="cnt">${own.length}</span></div>`;
+  TAXONOMY.forEach(c=>{
+    const n=own.filter(i=>i.cat===c.key).length;
+    html+=`<div class="cat ${activeCat===c.key?'active':''}" onclick="pickCat('${c.key}')">
+      <span class="emo">${c.emo}</span>${c.name}<span class="cnt">${n}</span></div>`;
+  });
+  document.getElementById('sidebar').innerHTML=html;
+}
+function pickCat(k){ activeCat=k; activeSub=""; renderSidebar(); renderSubbar(); renderMain(); }
+function pickSub(s){ activeSub=(activeSub===s?"":s); renderSubbar(); renderMain(); }
+
+function renderSubbar(){
+  const box=document.getElementById('subbar');
+  if(activeCat==="all"){ box.innerHTML=""; return; }
+  const c=CATMAP[activeCat];
+  const own=items.filter(i=>i.owned&&i.cat===activeCat);
+  box.innerHTML=c.subs.map(s=>{
+    const n=own.filter(i=>i.sub===s).length;
+    return `<span class="subchip ${activeSub===s?'on':''}" onclick="pickSub('${s}')">${s} ${n}</span>`;
+  }).join('');
+}
+
+function matchQ(it,q){
+  if(!q) return true;
+  q=q.toLowerCase();
+  return (label(it)+" "+it.brand+" "+(it.colors||[]).join(" ")+" "+it.sub).toLowerCase().includes(q);
+}
+
+function renderMain(){
+  const q=(document.getElementById('q')||{}).value||"";
+  let list=items.filter(i=>i.owned);
+  if(activeCat!=="all") list=list.filter(i=>i.cat===activeCat);
+  if(activeSub) list=list.filter(i=>i.sub===activeSub);
+  list=list.filter(i=>matchQ(i,q));
+  const box=document.getElementById('wardrobeList');
+  if(!list.length){ box.innerHTML='<div class="empty">这个分类下还没有单品～点右上角「+ 添加单品」加一件吧</div>'; return; }
+  box.innerHTML=list.map(it=>accItem(it)).join('');
+}
+
+function accItem(it,opts){
+  opts=opts||{};
+  const open=expanded.has(it.id);
+  const st=payState(it);
+  /* 已购单品直接显示 it.img（商品图/抓取图）；想买清单继续优先人台图/参考图 */
+  const mainImg = it.owned ? (it.img||'') : bestImg(it);
+  const setTag = it.cat==="dress" ? "" :
+    (inSet(it)?`<span class="st set">💞 一套</span>`:`<span class="st alone">💧 零散</span>`);
+  const dragAttr = opts.drag?` draggable="true" ondragstart="dragStart(event,'${it.id}')" ondragend="dragEnd(event)"`:"";
+  return `<div class="acc-item ${open?'open':''}" data-id="${it.id}"${dragAttr}>
+    <div class="acc-head" onclick="toggle('${it.id}')">
+      <div class="acc-thumb" style="${mainImg?`background-image:url('${mainImg}')`:''}">${mainImg?'':emo(it)}</div>
+      <div class="txt">
+        <div class="nm">${esc(label(it))}</div>
+        <div class="br">${esc(it.brand||"未填店家")}${it.colors&&it.colors.length?" · "+esc(it.colors.join("/")):""}</div>
+      ${(it.pays&&it.pays.length)?`<div class="pr" style="font-size:12px;color:var(--brown-soft);margin-top:2px">${it.owned?`💰 已付 ¥${sumPay(it).toFixed(2)}`:`💰 ¥${sumPay(it).toFixed(2)} · 未付款`}</div>`:""}
+      </div>
+      <div class="tags">
+        <span class="st sub">${it.sub}</span>
+        ${setTag}
+        ${it.owned?`<span class="st ${st==='clear'?'clear':st==='waitF'?'waitF':'waitD'}">${STATE_LABEL[st]}</span>`:''}
+      </div>
+      <span class="chev">›</span>
+    </div>
+    <div class="acc-body">${detail(it)}</div>
+  </div>`;
+}
+
+function detail(it){
+  const st=payState(it), total=sumPay(it);
+  const kids=items.filter(x=>x.name&&x.name===it.name&&x.id!==it.id);
+  /* 已购单品直接显示 it.img（商品图），想买清单优先人台图/参考图 */
+  const mainImg = it.owned ? (it.img||'') : bestImg(it);
+  const zoomSrc = it.owned ? (it.imgRaw||it.img||'') : bestRaw(it);
+  let html=`<div class="detail-grid">
+    <div class="detail-img" style="${mainImg?`background-image:url('${mainImg}')`:''}" onclick="showImg('${esc(zoomSrc)}','${esc(label(it))} 原图')" title="点击查看原图">${mainImg?'':emo(it)}</div>
+    <div class="detail-info">
+      <div class="kv">🏷️ 分类：<b>${CATMAP[it.cat].name} / ${it.sub}</b></div>
+      <div class="kv">🏬 店家：<b>${esc(it.brand||"—")}</b></div>
+      ${it.source?`<div class="kv">🛍️ 购入：<b>${esc(it.source)}</b></div>`:""}
+      ${it.note?`<div class="kv">📝 备注：${esc(it.note)}</div>`:""}
+      <div class="kv">🎨 颜色：</div>
+      <div class="chips">${(it.colors||[]).length?it.colors.map(c=>`<span class="chip">${esc(c)}</span>`).join(''):'<span class="chip">未填</span>'}</div>
+      ${(it.sizes||[]).length?`<div class="kv">📏 合适尺码：</div><div class="chips">${it.sizes.map(s=>`<span class="chip">${esc(s)}</span>`).join('')}</div>`:''}
+      `;
+  if(it.owned){
+    html+=`<div class="kv" style="margin-top:6px">💰 付款状态：<b>${STATE_LABEL[st]}</b></div>`;
+    if((it.pays||[]).length){
+      html+=`<table class="pay-tb"><tr><th>类型</th><th>金额</th><th>日期</th><th>订单号</th></tr>`+
+        it.pays.map(p=>`<tr><td><span class="pt ${p.t}">${p.t}</span></td>
+          <td class="amt">¥${Number(p.a||0).toFixed(2)}</td>
+          <td>${p.d||"—"}</td><td class="ord">${p.o?esc(String(p.o)):"—"}</td></tr>`).join('')+`</table>
+        <div class="total-row">合计已付 <b>¥${total.toFixed(2)}</b></div>`;
+      if(st==="waitF") html+=`<div class="kv" style="color:#c79121;font-weight:700;margin-top:4px">⏳ 尾款还没付，可以到「定金尾款」页写入日历提醒</div>`;
+    }else{
+      html+=`<div class="kv" style="color:var(--brown-soft)">还没有付款记录</div>`;
+    }
+  }else{
+    // 价格口径：定金/尾款是开团预购价的两段；全款=定金+尾款=预约价；
+    // 现货是错过开团后更贵的那一口价，与全款独立，不能混为一谈。
+    const ding = it.pays.filter(p=>p.t==="定金").reduce((s,p)=>s+Number(p.a||0),0);
+    const wei  = it.pays.filter(p=>p.t==="尾款").reduce((s,p)=>s+Number(p.a||0),0);
+    const quan = it.pays.filter(p=>p.t==="全款").reduce((s,p)=>s+Number(p.a||0),0);
+    const xian = it.pays.filter(p=>p.t==="现货").reduce((s,p)=>s+Number(p.a||0),0);
+    const parts=[];
+    if(ding>0) parts.push(`<span class="pt 定金">💗 定金 ¥${ding.toFixed(2)}</span>`);
+    if(wei>0)  parts.push(`<span class="pt 尾款">⏳ 尾款 ¥${wei.toFixed(2)}</span>`);
+    if(quan>0) parts.push(`<span class="pt 全款">💰 全款·预约价 ¥${quan.toFixed(2)}</span>`);
+    if(xian>0) parts.push(`<span class="pt 现货">🛒 现货 ¥${xian.toFixed(2)}</span>`);
+    if(parts.length) html+=`<div class="price-split">${parts.join('')}</div>`;
+    html+=`<div class="kv">💳 付款状态：<b>未付款</b></div>`;
+  }
+  html+=`</div></div>`;
+  // 图片画廊：只对想买清单显示（尺码表/面料表/人台图/参考图等）
+  // 已购单品在上方 detail-img 直接显示商品图，不再重复列出“商品图”小图。
+  if(!it.owned && it.imgs && it.imgs.length){
+    html+=`<div class="imgs-gallery">`+it.imgs.map(im=>
+      `<figure class="gimg" onclick="showImg('${im.src}','${im.label}')">
+        <img src="${im.src}" alt="${im.label}" loading="lazy">
+        <figcaption>${im.label}</figcaption></figure>`).join('')+`</div>`;
+  }
+
+  if(kids.length){
+    html+=`<div class="sub-acc"><div class="sub-title">💞 同套单品（${kids.length}）</div>`+
+      kids.map(k=>`<div class="acc-sub">
+        <div class="acc-sub-thumb" style="${k.img?`background-image:url('${k.img}')`:''}">${k.img?'':emo(k)}</div>
+        <div><div class="nm">${esc(k.sub)}${k.note?' · '+esc(k.note):''}</div>
+        <div class="mt">${esc(k.brand||"")} · ¥${sumPay(k).toFixed(2)}</div></div>
+        <span class="st set" style="margin-left:auto">💞 一套</span>
+      </div>`).join('')+`</div>`;
+  }
+
+  html+=`<div class="row-actions">
+    <button onclick="event.stopPropagation();openForm('${it.id}')">✏️ 编辑</button>
+    <button class="del" onclick="event.stopPropagation();delItem('${it.id}')">🗑 删除</button>
+  </div>`;
+  return html;
+}
+
+function toggle(i){ expanded.has(i)?expanded.delete(i):expanded.add(i); renderMain(); renderWishlist(); }
+function expandAll(){
+  const cur=items.filter(i=>i.owned&&(activeCat==="all"||i.cat===activeCat));
+  const allOpen=cur.every(i=>expanded.has(i.id));
+  cur.forEach(i=>allOpen?expanded.delete(i.id):expanded.add(i.id));
+  renderMain();
+}
+
+/* ---------- 成套搭配 ---------- */
+function renderSets(){
+  const m=setMap();
+  const keys=Object.keys(m).filter(k=>m[k].some(i=>i.owned));  // 只显示已开始的套装（想买清单里的套装不计入）
+  const box=document.getElementById('setsList');
+  if(!keys.length){ box.innerHTML='<div class="empty">还没有成套的搭配～给裙子和配件填上同一个名字，就会自动归成一套</div>'; return; }
+  box.innerHTML=keys.map(k=>{
+    const g=m[k];
+    const total=g.reduce((s,i)=>s+sumPay(i),0);
+    const allOwned=g.every(i=>i.owned), allWish=g.every(i=>!i.owned);
+    const payLabel = allWish ? `全套预估 ¥${total.toFixed(2)} · 未付款` : (allOwned ? `全套已付 ¥${total.toFixed(2)}` : `全套 ¥${total.toFixed(2)}`);
+    const main=g.find(i=>i.cat==="dress")||g[0];
+    return `<div class="set-card">
+      <h3>💞 ${esc(k)} <span class="st sub">${g.length} 件</span></h3>
+      <div class="meta">${esc(main.brand||"")} · ${esc((main.colors||[]).join("/"))} · ${payLabel}</div>
+      <div class="set-items">${g.map(i=>`<div class="set-pill">
+        <span class="e">${emo(i)}</span>
+        <span>${esc(i.sub)}${i.cat==='dress'?' 👑主件':''}</span>
+        <span class="p">¥${sumPay(i).toFixed(2)}</span>
+      </div>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- 定金尾款 ---------- */
+function fmtMonth(m){ const p=m.split('-'); return p[0]+'年'+parseInt(p[1],10)+'月'; }
+function buildEvents(){
+  const evs=[];
+  items.forEach(it=>{
+    if(!it.owned) return;        // 想买清单 / 未开始买的套装不计入定金尾款；已下定金或补尾款的套装仍计入
+    (it.pays||[]).forEach((p,idx)=>{
+      if(["定金","尾款","意向金"].includes(p.t) && p.d)
+        evs.push({date:p.d,type:p.t,amt:Number(p.a)||0,it,paid:true,order:p.o,payIdx:idx});
+    });
+    if(payState(it)==="waitF"){
+      evs.push({date:it.finalDue||"",type:"尾款",amt:0,it,paid:false});
+    }
+  });
+  return evs;
+}
+function renderSchedule(){
+  const evs=buildEvents();
+  const dated=evs.filter(e=>e.date), undated=evs.filter(e=>!e.date);
+  const sel=document.getElementById('monthFilter');
+  const months=[...new Set(dated.map(e=>e.date.slice(0,7)))].sort().reverse();
+  if(sel){
+    const cur=sel.value;
+    sel.innerHTML='<option value="">📅 全部月份</option>'+months.map(m=>`<option value="${m}">${fmtMonth(m)}</option>`).join('');
+    sel.value=months.includes(cur)?cur:"";
+  }
+  const mf=sel?sel.value:"";
+  const sf=(document.getElementById('stateFilter')||{}).value||"";
+  let view=dated;
+  if(mf) view=view.filter(e=>e.date.slice(0,7)===mf);
+  if(sf==="wait") view=[];
+  if(sf==="paid") view=view.filter(e=>e.paid);
+  let showUndated = sf!=="paid" && (!mf || sf==="wait");
+
+  const groups={};
+  view.forEach(e=>{ const m=e.date.slice(0,7); (groups[m]=groups[m]||[]).push(e); });
+  const ms=Object.keys(groups).sort().reverse();
+  const box=document.getElementById('scheduleList');
+  let html="";
+
+  if(showUndated && undated.length){
+    html+=`<div class="month-group"><h3 class="month-h">⏳ 尾款待付（日期待定）<span class="month-sum">${undated.length} 笔</span></h3><div class="timeline">`+
+      undated.map(e=>tlItem(e)).join('')+`</div></div>`;
+  }
+  ms.forEach(m=>{
+    const its=groups[m].sort((a,b)=>b.date.localeCompare(a.date));
+    const sum=its.reduce((s,e)=>s+e.amt,0);
+    html+=`<div class="month-group"><h3 class="month-h">📆 ${fmtMonth(m)}<span class="month-sum">${its.length} 笔 · 共 ¥${sum.toFixed(2)}</span></h3><div class="timeline">`+
+      its.map(e=>tlItem(e)).join('')+`</div></div>`;
+  });
+  box.innerHTML = html || '<div class="empty">这个筛选下没有记录～换个月份或状态看看</div>';
+}
+function tlItem(e){
+  const it=e.it, ico=e.type==="定金"?"💸":e.type==="尾款"?"🎁":"💗";
+  const key = it.id+"|"+e.type;
+  const inCal = calendarEvents.some(c=>c.key===key);
+  const badge = e.paid
+    ? `<span class="st paid">✅ 已付</span>`
+    : `<span class="st waitF">⏳ 待付</span>`;
+  const editArgs = e.paid ? `'${it.id}',${e.payIdx}` : `'${it.id}',-1`;
+  return `<div class="tl-item${e.paid?' done':''}">
+    <div class="tl-date">${e.date||"日期待定"} · ${ico} ${e.type}${e.type==="尾款"&&!e.paid?"日（待商家通知）":"日"}</div>
+    <div class="tl-title">${esc(label(it))}${it.cat!=='dress'?` <span class="st sub">${it.sub}</span>`:''}</div>
+    <div class="tl-meta">${esc(it.brand||"")} · ${e.paid?("¥"+e.amt.toFixed(2)):"金额待定"}</div>
+    <div style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      ${badge}
+      <button class="cal-btn edit" onclick="openEditPay(${editArgs})">✏️ 编辑时间</button>
+      ${!e.paid ? (inCal
+        ? `<button class="cal-btn done">✅ 已写入日历</button>`
+        : `<button class="cal-btn" onclick="askCal('${it.id}','${e.type}')">📅 写入日历</button>`) : ''}
+    </div>
+  </div>`;
+}
+
+/* ---------- 添加 / 编辑定金尾款 ---------- */
+let payEditCtx=null;   // {mode:'add'} 或 {mode:'edit', itId, payIdx}
+function buildItemOptions(selId){
+  const sel=document.getElementById(selId);
+  const owned=items.filter(i=>i.owned);
+  sel.innerHTML=owned.map(i=>`<option value="${i.id}">${esc(label(i))}${i.sub?(" · "+esc(i.sub)):""}${i.brand?("（"+esc(i.brand)+"）"):""}</option>`).join('');
+}
+function openAddPay(){
+  payEditCtx={mode:"add"};
+  document.getElementById('payTitle').textContent="➕ 添加定金 / 尾款";
+  buildItemOptions('payItem');
+  document.getElementById('payItem').disabled=false;
+  document.getElementById('payType').value="定金";
+  document.getElementById('payAmt').value="";
+  document.getElementById('payDate').value="";
+  document.getElementById('payNote').textContent="添加后这条会显示在「定金尾款」对应月份下。";
+  document.getElementById('payDelete').style.display="none";
+  document.getElementById('payOverlay').classList.add('open');
+}
+function openEditPay(itId,payIdx){
+  const it=items.find(i=>i.id===itId); if(!it) return;
+  payEditCtx={mode:"edit",itId,payIdx};
+  document.getElementById('payTitle').textContent="✏️ 编辑付款时间";
+  buildItemOptions('payItem');
+  document.getElementById('payItem').value=itId;
+  document.getElementById('payItem').disabled=true;   // 编辑时不允许改所属单品
+  if(payIdx>=0 && it.pays[payIdx]){
+    const p=it.pays[payIdx];
+    document.getElementById('payType').value=p.t;
+    document.getElementById('payAmt').value=p.a!=""?Number(p.a):"";
+    document.getElementById('payDate').value=p.d||"";
+    document.getElementById('payNote').textContent="主要改「日期」即可，类型/金额也能改。";
+  }else{
+    // 待付尾款（合成事件）：编辑 it.finalDue
+    document.getElementById('payType').value="尾款";
+    document.getElementById('payAmt').value="";
+    document.getElementById('payDate').value=it.finalDue||"";
+    document.getElementById('payNote').textContent="这是待付尾款（日期待定）。填上日期后，它会出现在对应月份下。";
+  }
+  document.getElementById('payDelete').style.display="inline-block";
+  document.getElementById('payOverlay').classList.add('open');
+}
+function closePay(){ document.getElementById('payOverlay').classList.remove('open'); payEditCtx=null; }
+function savePay(){
+  if(!payEditCtx) return;
+  const itId=document.getElementById('payItem').value;
+  const it=items.find(i=>i.id===itId); if(!it) return;
+  const t=document.getElementById('payType').value;
+  const a=parseFloat(document.getElementById('payAmt').value)||0;
+  const d=document.getElementById('payDate').value;
+  if(payEditCtx.mode==="add"){
+    if(!d){ toast("请先填日期"); return; }
+    it.pays=it.pays||[];
+    it.pays.push({t,a,d,o:""});
+  }else{
+    const {itId,payIdx}=payEditCtx;
+    if(payIdx>=0 && it.pays[payIdx]){
+      const p=it.pays[payIdx];
+      p.t=t; p.a=a; p.d=d;
+    }else{
+      it.finalDue=d;   // 待付尾款日期
+    }
+  }
+  save(); renderSchedule(); renderCalendar();
+  closePay();
+  toast("已保存 💾");
+}
+function deletePay(){
+  if(!payEditCtx||payEditCtx.mode!=="edit") return;
+  const {itId,payIdx}=payEditCtx;
+  const it=items.find(i=>i.id===itId); if(!it) return;
+  if(payIdx>=0 && it.pays[payIdx]){
+    const delType=it.pays[payIdx].t;
+    it.pays.splice(payIdx,1);
+    // 清掉已写入日历的相关提醒
+    calendarEvents=calendarEvents.filter(c=>!(c.itemId===itId && c.type===delType));
+  }
+  save(); renderSchedule(); renderCalendar();
+  closePay();
+  toast("已删除 🗑");
+}
+
+/* ---------- 想买清单 ---------- */
+function renderWishlist(){
+  const groups=[{k:"most",t:"⭐ 最想买（心心念念必入）"},{k:"price",t:"💰 价格合适就买（降价就下手）"},{k:"less",t:"🌫️ 不太想买（看缘分）"}];
+  let html="";
+  const sMap=setMap();
+  groups.forEach(g=>{
+    const list=items.filter(i=>!i.owned&&(i.prio||"price")===g.k);
+    // 想买清单里，整套都还没买的套装只显示一条代表（OP/裙子优先）
+    const visible=list.filter(i=>{
+      const s=sMap[i.name];
+      if(!s || s.length<2) return true;
+      const allWish=s.every(x=>!x.owned);
+      if(!allWish) return true;
+      const rep=s.find(x=>x.sub==="OP") || s.find(x=>x.cat==="dress") || s[0];
+      return i.id===rep.id;
+    });
+    html+=`<div class="wish-group ${g.k}" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropWish(event,'${g.k}')">
+      <h3>${g.t}（${visible.length}）</h3>`;
+    html+= visible.length? visible.map(d=>accItem(d,{drag:true})).join('') : '<div class="empty">拖一条过来，或点右上角添加～</div>';
+    html+='</div>';
+  });
+  document.getElementById('wishArea').innerHTML=html;
+}
+let dragId=null;
+function dragStart(e,i){ dragId=i; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
+function dragEnd(e){ e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.wish-group').forEach(g=>g.classList.remove('drag-over')); }
+function dragOver(e){ e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function dragLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+function dropWish(e,k){
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  const it=items.find(x=>x.id===dragId); if(!it) return;
+  it.prio=k; save(); renderWishlist(); renderStats();
+  toast("已移到 "+({most:"⭐ 最想买",price:"💰 价格合适就买",less:"🌫️ 不太想买"})[k]);
+}
+
+/* ---------- 日历 ---------- */
+function askCal(itemId,type){
+  const it=items.find(x=>x.id===itemId); if(!it) return;
+  pendingCal={itemId,type};
+  document.getElementById('calWhat').textContent=label(it)+" 的"+type+"提醒";
+  document.getElementById('calPreview').innerHTML=
+    `🎀 <b>${esc(label(it))}</b>（${esc(it.sub)}）<br>🏬 ${esc(it.brand||"")}<br>💰 ${type}${type==="尾款"?"（金额以商家通知为准）":""}<br>⏰ 到期当天 + 提前 3 天各提醒一次`;
+  document.getElementById('calOverlay').classList.add('open');
+}
+function closeCal(){ document.getElementById('calOverlay').classList.remove('open'); pendingCal=null; }
+function confirmCal(){
+  if(!pendingCal) return closeCal();
+  const it=items.find(x=>x.id===pendingCal.itemId);
+  addCal(it,pendingCal.type);
+  closeCal(); save(); renderSchedule(); renderCalendar();
+  toast("已写入日历，到点会提醒你 🔔");
+  if("Notification" in window && Notification.permission==="default") Notification.requestPermission();
+}
+function addCal(it,type){
+  const key=it.id+"|"+type;
+  if(calendarEvents.some(c=>c.key===key)) return false;
+  calendarEvents.push({key,itemId:it.id,type,title:label(it),sub:it.sub,brand:it.brand,date:it.finalDue||"待定"});
+  return true;
+}
+function writeAllCalendar(){
+  let n=0;
+  items.filter(i=>i.owned && payState(i)==="waitF").forEach(it=>{ if(addCal(it,"尾款")) n++; });
+  save(); renderSchedule(); renderCalendar();
+  toast(n?`已把 ${n} 条待付尾款写入日历 🔔`:"没有新的待付尾款需要写入");
+  if(n&&"Notification" in window && Notification.permission==="default") Notification.requestPermission();
+}
+function clearCalendar(){ calendarEvents=[]; save(); renderCalendar(); renderSchedule(); toast("提醒已清空"); }
+function renderCalendar(){
+  const box=document.getElementById('calList');
+  if(!calendarEvents.length){ box.innerHTML='<div class="empty">还没有日历提醒～去「定金尾款」页点「📅 写入日历」吧</div>'; return; }
+  box.innerHTML=calendarEvents.map(c=>`<div class="cal-item">
+    <div class="cal-ico">${c.type==="定金"?"💸":"🎁"}</div>
+    <div class="cal-main"><div class="tt">${esc(c.title)} · ${esc(c.sub||"")}</div>
+    <div class="mt">${esc(c.brand||"")} · ${c.type}提醒 · ${c.date}</div></div>
+    <span class="st waitF">${c.type}</span>
+    <button class="cal-btn" onclick="fire('${esc(c.title)}','${c.type}')">🔔 模拟到点提醒</button>
+    <button class="cal-btn" onclick="rmCal('${c.key}')">🗑</button>
+  </div>`).join('');
+}
+function rmCal(k){ calendarEvents=calendarEvents.filter(c=>c.key!==k); save(); renderCalendar(); renderSchedule(); toast("已移除该提醒"); }
+function fire(t,type){
+  const body=`「${t}」的${type}该付啦，别忘记去店铺付款哦 🎀`;
+  if("Notification" in window && Notification.permission==="granted"){ new Notification("🎀 Lo 娘衣柜提醒",{body}); }
+  else if("Notification" in window && Notification.permission==="default"){
+    Notification.requestPermission().then(p=>{ if(p==="granted") new Notification("🎀 Lo 娘衣柜提醒",{body}); else toast(body); });
+  } else toast(body);
+  toast(body);
+}
+
+/* ---------- 表单 ---------- */
+function fillCatSelect(){
+  document.getElementById('fCat').innerHTML=TAXONOMY.map(c=>`<option value="${c.key}">${c.emo} ${c.name}</option>`).join('');
+}
+function syncSubs(){
+  const k=document.getElementById('fCat').value;
+  document.getElementById('fSub').innerHTML=CATMAP[k].subs.map(s=>`<option>${s}</option>`).join('');
+}
+function addPayLine(p){
+  p=p||{t:"全款",a:"",d:"",o:""};
+  const box=document.getElementById('payLines');
+  const div=document.createElement('div');
+  div.className='pay-line';
+  div.innerHTML=`<select>${PAY_TYPES.map(t=>`<option ${t===p.t?'selected':''}>${t}</option>`).join('')}</select>
+    <input type="number" step="0.01" placeholder="金额" value="${p.a===0||p.a?p.a:''}">
+    <input type="date" value="${p.d||''}">
+    <button class="rm" onclick="this.parentNode.remove()">×</button>`;
+  box.appendChild(div);
+}
+function collectPays(){
+  return [...document.querySelectorAll('#payLines .pay-line')].map(l=>{
+    const [s,a,d]=[l.children[0],l.children[1],l.children[2]];
+    return {t:s.value,a:parseFloat(a.value)||0,d:d.value||"",o:""};
+  }).filter(p=>p.a||p.d);
+}
+function openForm(itemId,opts){
+  opts=opts||{}; editingId=itemId||null;
+  const it=itemId?items.find(x=>x.id===itemId):null;
+  fillCatSelect();
+  document.getElementById('modalTitle').textContent=it?"编辑单品":(opts.wish?"添加想买":"添加单品");
+  document.getElementById('fCat').value=it?it.cat:"dress"; syncSubs();
+  if(it) document.getElementById('fSub').value=it.sub;
+  document.getElementById('fName').value=it?it.name:"";
+  document.getElementById('fBrand').value=it?it.brand:"";
+  document.getElementById('fColors').value=it?(it.colors||[]).join(", "):"";
+  document.getElementById('fSizes').value=it?(it.sizes||[]).join(", "):"";
+  document.getElementById('fSource').value=it?(it.source||""):"";
+  document.getElementById('fImg').value=it?(it.img||""):"";
+  document.getElementById('fOwned').value=it?(it.owned?"1":"0"):(opts.wish?"0":"1");
+  document.getElementById('fPrio').value=it?(it.prio||"price"):"most";
+  togglePrio();
+  document.getElementById('fOwned').onchange=togglePrio;
+  document.getElementById('payLines').innerHTML="";
+  ((it&&it.pays)||[]).forEach(p=>addPayLine(p));
+  if(!it) addPayLine();
+  document.getElementById('overlay').classList.add('open');
+}
+function togglePrio(){
+  document.getElementById('prioField').style.display =
+    document.getElementById('fOwned').value==="0" ? "block":"none";
+}
+function closeForm(){ document.getElementById('overlay').classList.remove('open'); editingId=null; }
+function pickImg(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=e=>document.getElementById('fImg').value=e.target.result; r.readAsDataURL(f);
+}
+function saveItem(){
+  const cat=document.getElementById('fCat').value;
+  const obj={
+    cat, sub:document.getElementById('fSub').value,
+    name:document.getElementById('fName').value.trim(),
+    brand:document.getElementById('fBrand').value.trim(),
+    colors:splitv(document.getElementById('fColors').value),
+    sizes:splitv(document.getElementById('fSizes').value),
+    source:document.getElementById('fSource').value,
+    img:document.getElementById('fImg').value.trim(),
+    owned:document.getElementById('fOwned').value==="1",
+    prio:document.getElementById('fPrio').value,
+    pays:collectPays()
+  };
+  if(!obj.name&&!obj.brand){ toast("至少填个名字或店家吧～"); return; }
+  if(editingId){
+    const i=items.findIndex(x=>x.id===editingId);
+    items[i]=Object.assign({},items[i],obj);
+  }else{
+    items.push(Object.assign({id:id(),note:""},obj));
+  }
+  save(); closeForm(); render(); toast("保存好啦 🎀");
+}
+function delItem(i){
+  const it=items.find(x=>x.id===i);
+  if(!confirm(`确定删除「${label(it)}」吗？`)) return;
+  items=items.filter(x=>x.id!==i);
+  calendarEvents=calendarEvents.filter(c=>c.itemId!==i);
+  save(); render(); toast("已删除");
+}
+
+/* ---------- 工具 ---------- */
+function splitv(s){ return s.split(/[,，、]/).map(x=>x.trim()).filter(Boolean); }
+/* ===================== 工具 ===================== */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1900); }
+
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+});
+document.getElementById('overlay').onclick=e=>{ if(e.target.id==='overlay') closeForm(); };
+document.getElementById('calOverlay').onclick=e=>{ if(e.target.id==='calOverlay') closeCal(); };
+document.getElementById('payOverlay').onclick=e=>{ if(e.target.id==='payOverlay') closePay(); };
+
+load(); render();
+
+
+/* ---------- 图片放大灯箱 ---------- */
+function showImg(src,label){
+  const ov=document.getElementById('imgOverlay');
+  ov.querySelector('img').src=src;
+  ov.querySelector('.cap').textContent=label||"";
+  ov.classList.add('open');
+}
+function closeImg(){ document.getElementById('imgOverlay').classList.remove('open'); }
+</script>
+<div id="imgOverlay" onclick="if(event.target===this)closeImg()">
+  <span class="x" onclick="closeImg()">×</span>
+  <img src="" alt="">
+  <div class="cap"></div>
+</div>
+</body>
+</html>
