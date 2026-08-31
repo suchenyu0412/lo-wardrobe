@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Lo 娘衣柜 · 我的裙子收纳</title>
+<meta name="theme-color" content="#e0457a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lo娘衣柜">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>
   :root{
     --pink:#f7c6d5; --pink-soft:#fde8ef; --pink-deep:#e0457a;
@@ -132,6 +138,8 @@
     padding:6px 14px;cursor:pointer;font-size:12.5px;font-weight:600}
   .row-actions button:hover{background:var(--pink-soft)}
   .row-actions .del:hover{background:#fde8e8;color:#d9534f;border-color:#f3b5b5}
+  .row-actions .move{background:var(--pink-deep);color:#fff;border-color:var(--pink-deep)}
+  .row-actions .move:hover{background:#d63b78}
 
   /* 成套 */
   .set-card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:14px}
@@ -149,6 +157,7 @@
   .tl-item::before{content:"";position:absolute;left:-21px;top:15px;width:14px;height:14px;border-radius:50%;
     background:var(--pink-deep);border:3px solid var(--cream)}
   .tl-date{font-size:12.5px;font-weight:700;color:var(--pink-deep)}
+  .tl-arrow{color:var(--brown-soft);margin:0 4px;font-weight:400}
   .tl-title{font-size:15px;font-weight:700;margin:3px 0 2px}
   .tl-meta{font-size:11.5px;color:var(--brown-soft)}
   .tl-item.done{opacity:.55;background:#fafafa}
@@ -199,6 +208,8 @@
   .field input:focus,.field select:focus{outline:none;border-color:var(--pink-deep)}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .hint{font-size:11px;color:var(--brown-soft);margin-top:3px}
+  .chk-row{display:flex;align-items:flex-start;gap:8px;font-weight:600;color:var(--brown);font-size:12.5px;cursor:pointer;line-height:1.4}
+  .chk-row input[type="checkbox"]{width:18px;height:18px;margin-top:1px;flex:0 0 auto;accent-color:var(--pink-deep);cursor:pointer}
   .pay-editor{background:#fff;border-radius:12px;padding:10px;border:1.5px solid var(--pink)}
   .pay-line{display:grid;grid-template-columns:96px 84px 1fr 30px;gap:6px;margin-bottom:6px;align-items:center}
   .pay-line input,.pay-line select{border:1px solid var(--pink);border-radius:8px;padding:6px 7px;font-size:12.5px;width:100%;background:#fff;color:var(--brown)}
@@ -209,7 +220,8 @@
     padding:10px 20px;border-radius:999px;font-size:13.5px;opacity:0;transition:.3s;pointer-events:none;z-index:99}
   .toast.show{opacity:1}
 
-    .svc-pill{font-size:12px;font-weight:700;padding:6px 13px;border-radius:999px;white-space:nowrap}
+  /* ---------- 图片抓取 ---------- */
+  .svc-pill{font-size:12px;font-weight:700;padding:6px 13px;border-radius:999px;white-space:nowrap}
   .svc-pill.on{background:#e6f7ec;color:#1f9254}
   .svc-pill.off{background:#fdeaea;color:#c94040}
   .svc-help{background:#fff6e5;border:1.5px solid #ffd591;border-radius:var(--radius);padding:14px 18px;margin-bottom:14px;font-size:13px;line-height:1.9}
@@ -256,10 +268,70 @@
   #imgOverlay .x{position:absolute;top:16px;right:22px;font-size:28px;color:#fff;cursor:pointer}
 
   @media(max-width:720px){
-    .layout{flex-direction:column}
-    .sidebar{position:static;width:100%;display:flex;flex-wrap:wrap;gap:5px;max-height:none}
-    .sidebar .cat{width:auto;margin:0}
-    .side-h{width:100%}
+    body{padding-bottom:0}
+    header{padding:14px 12px 10px;border-radius:0}
+    header h1{font-size:19px}
+    .stats{gap:6px;padding:0 8px;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start}
+    .stat{min-width:82px;padding:7px 10px}
+    .stat b{font-size:16px}
+    nav{position:sticky;top:0;z-index:60;margin:0;padding:8px;gap:6px;
+        flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;border-bottom-left-radius:18px;border-bottom-right-radius:18px;
+        background:linear-gradient(135deg,#ffd9e5,#ffeede)}
+    nav button{flex:0 0 auto;white-space:nowrap;font-size:13px;padding:8px 13px}
+    .container{padding:0 10px}
+    .layout{flex-direction:column;gap:10px}
+    .sidebar{position:static;width:100%;display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;max-height:none;padding:8px}
+    .sidebar .cat{width:auto;white-space:nowrap;padding:7px 11px;margin:0}
+    .side-h{display:none}
+    .toolbar{flex-direction:column;align-items:stretch;gap:8px}
+    .toolbar h2{font-size:18px}
+    .toolbar > div{display:flex;gap:8px;flex-wrap:wrap}
+    .search{min-width:0;flex:1 1 auto}
+    .detail-grid{flex-direction:column}
+    .detail-img{width:100%!important;flex:1 1 auto!important}
+    .row2{grid-template-columns:1fr}
+    .pay-line{grid-template-columns:1fr 1fr;row-gap:6px}
+    .modal{max-width:none;width:100%;max-height:none;height:100%;border-radius:0;padding:16px}
+    .crawl-grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
+    .cal-item{align-items:flex-start}
+    nav button[data-tab="crawl"]{display:none}
+  }
+
+  /* ---------- 数据导出 ---------- */
+  .export-card{max-width:760px;margin:6px auto 0;background:var(--card);border:1px solid var(--pink-soft);
+    border-radius:18px;padding:18px 20px;box-shadow:0 6px 20px rgba(160,90,120,.08)}
+  .export-card .field{margin:14px 0}
+  .export-card label{display:block;margin-bottom:8px;color:var(--brown)}
+  .seg{display:flex;gap:8px;flex-wrap:wrap}
+  .seg-btn{border:1px solid var(--pink-soft);background:#fff;color:var(--brown);padding:9px 16px;
+    border-radius:999px;cursor:pointer;font-size:14px;transition:.15s}
+  .seg-btn:hover{transform:translateY(-1px)}
+  .seg-btn.active{background:var(--pink-deep);color:#fff;border-color:var(--pink-deep)}
+  .export-tree{display:flex;flex-direction:column;gap:8px;border:1px dashed var(--pink-soft);
+    border-radius:14px;padding:14px;background:#fffdfe;max-height:46vh;overflow:auto}
+  .cat-row{border-bottom:1px solid #f6e6ec;padding-bottom:8px}
+  .cat-row:last-child{border-bottom:none;padding-bottom:0}
+  .cat-chk{font-size:14.5px;display:flex;align-items:center;gap:7px}
+  .cat-chk input,.sub-chk input{width:16px;height:16px;accent-color:var(--pink-deep);cursor:pointer}
+  .sub-row{display:flex;flex-wrap:wrap;gap:6px 14px;margin:7px 0 0 24px}
+  .sub-chk{font-size:13px;color:var(--brown-soft);display:flex;align-items:center;gap:5px;cursor:pointer}
+  .sub-chk:hover{color:var(--pink-deep)}
+  .export-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;
+    border-top:1px solid #f2e2e9;padding-top:14px}
+  .export-count{font-size:14px;color:var(--brown)}
+  .export-count b{color:var(--pink-deep);font-size:18px}
+  .export-fmt{border:1.5px solid var(--pink);border-radius:10px;padding:8px 12px;font-size:13px;background:#fff;color:var(--brown);cursor:pointer}
+  /* 开始时间：精确 / 大概 切换 */
+  .pay-mode{display:flex;gap:6px;margin-bottom:8px}
+  .pay-mode button{border:1px solid var(--pink-soft);background:#fff;color:var(--brown);border-radius:999px;padding:5px 14px;cursor:pointer;font-size:12.5px;transition:.15s}
+  .pay-mode button.on{background:var(--pink-deep);color:#fff;border-color:var(--pink-deep)}
+  .rough-row{display:flex;gap:6px;flex-wrap:wrap}
+  .rough-row select{flex:1;min-width:88px;border:1.5px solid var(--pink);border-radius:10px;padding:8px 9px;font-size:13px;background:#fff;color:var(--brown)}
+  .rough-hint{font-size:11.5px;color:var(--brown-soft);margin-top:6px}
+  @media(max-width:720px){
+    .export-tree{max-height:none}
+    .export-foot{flex-direction:column;align-items:stretch}
+    .export-foot .btn{width:100%}
   }
 </style>
 </head>
@@ -277,8 +349,8 @@
   <button data-tab="sets">💞 成套搭配</button>
   <button data-tab="schedule">📅 定金尾款</button>
   <button data-tab="wishlist">💖 想买清单</button>
-  <button data-tab="calendar">📲 我的日历</button>
-  
+  <button data-tab="export">📤 数据导出</button>
+  <button data-tab="crawl">🕷️ 图片抓取</button>
 </nav>
 
 <div class="container">
@@ -322,8 +394,15 @@
           <option value="wait">⏳ 只看待付</option>
           <option value="paid">✅ 只看已付</option>
         </select>
+        <select id="typeFilter" class="sel" onchange="renderSchedule()">
+          <option value="">全部类型</option>
+          <option value="定金">💸 定金</option>
+          <option value="尾款">🎁 尾款</option>
+          <option value="现货">🛍️ 现货</option>
+        </select>
         <button class="btn" onclick="openAddPay()">➕ 添加定金/尾款</button>
-        <button class="btn ghost" onclick="writeAllCalendar()">⬇️ 待付全部写入日历</button>
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;color:var(--brown-soft)">仅导出 <input type="date" class="sel export-from"></label>
+        <button class="btn ghost" onclick="exportICS(this)">📲 导出到手机日历</button>
       </div>
     </div>
     <div id="scheduleList"></div>
@@ -335,20 +414,108 @@
       <h2>想买清单</h2>
       <button class="btn" onclick="openForm(null,{wish:true})">+ 添加想买</button>
     </div>
-    <div class="drag-hint">📱 按住卡片拖到别的分组，就能改优先级（像挪手机桌面图标一样）</div>
+    <div class="drag-hint">📱 按住卡片拖到别的分组，就能改优先级</div>
     <div id="wishArea"></div>
   </section>
 
-  <!-- 我的日历 -->
-  <section class="tab" id="tab-calendar">
+  <!-- 数据导出 -->
+  <section class="tab" id="tab-export">
     <div class="toolbar">
-      <h2>我的日历提醒</h2>
-      <button class="btn ghost" onclick="clearCalendar()">🗑 清空提醒</button>
+      <h2>📤 数据导出</h2>
     </div>
-    <div id="calList" class="cal-list"></div>
+    <div class="export-card">
+      <div class="field">
+        <label>① 导出范围</label>
+        <div class="seg">
+          <button class="seg-btn active" data-scope="owned" onclick="setExportScope('owned',this)">🧺 我的衣柜（已有）</button>
+          <button class="seg-btn" data-scope="wish" onclick="setExportScope('wish',this)">💖 想买清单</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>② 分类筛选 <span style="font-weight:400;color:var(--brown-soft);font-size:12px">（勾选要导出的大类 / 小类，可精确到 JSK、OP）</span></label>
+        <div class="export-tree" id="exportTree"></div>
+      </div>
+      <div class="export-foot">
+        <div class="export-count">将导出 <b id="exportCount">0</b> 件</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <select id="exportFmt" class="export-fmt">
+            <option value="csv">CSV（Excel 可直接打开）</option>
+            <option value="json">JSON（完整备份 / 迁移）</option>
+          </select>
+          <button class="btn" onclick="exportData()">📥 导出</button>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--brown-soft);line-height:1.6;margin-top:10px">
+        CSV 适合用 Excel / WPS 打开查看；JSON 会保留图片路径、付款记录等全部字段，用于备份或迁移数据。
+      </p>
+    </div>
   </section>
 
-  
+  <!-- 图片抓取 -->
+  <section class="tab" id="tab-crawl">
+    <div class="toolbar">
+      <h2>订单图片抓取</h2>
+      <span id="svcState" class="svc-pill off">● 本地服务未连接</span>
+    </div>
+
+    <div id="svcHelp" class="svc-help" style="display:none">
+      <b>要先启动本地服务，爬虫才能跑起来 🐣</b>
+      <ol>
+        <li>打开文件夹 <code>LO衣柜\爬虫</code>，双击 <code>start.bat</code></li>
+        <li>它会自动用浏览器打开 <code>http://127.0.0.1:8899/index.html</code></li>
+        <li>在那个地址下再回到这一页，就能开始抓图了</li>
+      </ol>
+      <div class="hint">直接双击 index.html（file:// 方式）打开时，浏览器不允许网页调用本地程序，所以必须走上面这一步。</div>
+    </div>
+
+    <div class="crawl-panel">
+      <div class="field">
+        <label>你的「已买到的宝贝」页面地址</label>
+        <input id="crawlUrl" value="https://buyertrade.taobao.com/trade/itemlist/list_bought_items.htm"
+               placeholder="粘贴你自己的订单列表页地址">
+      </div>
+      <div class="crawl-row">
+        <div class="field" style="max-width:150px">
+          <label>往后翻几页</label>
+          <input id="crawlPages" type="number" min="1" max="100" value="50">
+        </div>
+        <div class="field" style="max-width:190px">
+          <label>抓完保留浏览器</label>
+          <select id="crawlKeep"><option value="">否（自动关闭）</option><option value="1">是（方便排查）</option></select>
+        </div>
+      </div>
+      <div class="hint">
+        第一次运行会弹出一个 Chrome 窗口，<b>请在里面扫码登录淘宝</b>（只需一次，之后自动记住）。
+        登录后爬虫会自己翻页找订单号、抓商品图；<b>找齐所有订单后会提前停止</b>，不用硬翻到底。
+      </div>
+    </div>
+
+    <div class="toolbar" style="margin-top:16px">
+      <h2 style="font-size:15px">选择要抓图的单品</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn ghost mini" onclick="pickCrawl('all')">全选</button>
+        <button class="btn ghost mini" onclick="pickCrawl('none')">全不选</button>
+        <button class="btn ghost mini" onclick="pickCrawl('noimg')">只选还没图的</button>
+      </div>
+    </div>
+    <div id="crawlPick" class="crawl-pick"></div>
+
+    <div class="crawl-actions">
+      <button class="btn" id="btnCrawl" onclick="startCrawl()">🕷️ 开始抓取</button>
+      <button class="btn ghost" onclick="stopCrawl()">⏹ 停止</button>
+      <span id="crawlCount" class="hint"></span>
+    </div>
+
+    <h3 class="crawl-h">🐞 爬虫消息</h3>
+    <div id="crawlLog" class="crawl-log">还没开始跑。选好单品后点「开始抓取」，这里会实时显示进度。</div>
+
+    <h3 class="crawl-h">🖼 抓到的图（原图 + 缩略图）</h3>
+    <div class="toolbar" style="margin-bottom:10px">
+      <span class="hint" id="crawlResHint">抓完后会显示在这里，命名规则「名字-类型」，比如 示例单品-礼帽.jpg</span>
+      <button class="btn ghost mini" onclick="applyCrawlImages()">✅ 全部应用到衣柜</button>
+    </div>
+    <div id="crawlResult" class="crawl-grid"></div>
+  </section>
 
 </div>
 
@@ -396,28 +563,12 @@
         <div id="payLines"></div>
         <button class="add-pay" onclick="addPayLine()">+ 加一笔付款</button>
       </div>
-      <div class="hint">尾款还没付就先别填「尾款」，它会自动进「待付尾款」并可写入日历提醒。</div>
+      <div class="hint">填了「尾款」金额和日期、但不勾「已支付」，它就会进「待付尾款」提醒并可写入日历；真正付清后再勾上「已支付」即可。</div>
     </div>
 
     <div class="modal-actions">
       <button class="btn ghost" onclick="closeForm()">取消</button>
       <button class="btn" onclick="saveItem()">保存</button>
-    </div>
-  </div>
-</div>
-
-<!-- 日历授权弹窗 -->
-<div class="overlay" id="calOverlay">
-  <div class="modal" style="max-width:420px">
-    <h3>📅 授权写入日历</h3>
-    <p style="font-size:13.5px;line-height:1.7">即将把这条 <b id="calWhat"></b> 添加到你的日历：</p>
-    <div style="background:#fff;border-radius:12px;padding:12px;margin:12px 0;font-size:13px;line-height:1.8">
-      <div id="calPreview"></div>
-    </div>
-    <p style="font-size:12px;color:var(--brown-soft);line-height:1.6">授权后，到日期当天会自动推送提醒；提前 3 天也会再提醒一次，不会错过付款时间。</p>
-    <div class="modal-actions">
-      <button class="btn ghost" onclick="closeCal()">再想想</button>
-      <button class="btn" onclick="confirmCal()">同意并写入</button>
     </div>
   </div>
 </div>
@@ -435,6 +586,7 @@
         <select id="payType" class="sel">
           <option value="定金">💸 定金</option>
           <option value="尾款">🎁 尾款</option>
+          <option value="现货">🛍️ 现货</option>
           <option value="意向金">💗 意向金</option>
         </select>
       </div>
@@ -444,8 +596,48 @@
       </div>
     </div>
     <div class="field">
-      <label>日期 <span class="hint">（编辑时间主要改这里）</span></label>
-      <input id="payDate" type="date">
+      <label>开始时间 <span class="hint">定金请填到几点几分（抢）；尾款/现货填开付/开售日</span></label>
+      <div class="pay-mode">
+        <button type="button" class="on" id="payModeExact" onclick="setPayMode('exact')">📅 精确日期</button>
+        <button type="button" id="payModeRough" onclick="setPayMode('rough')">📆 大概日期</button>
+      </div>
+      <div id="payStartExact">
+        <div class="row2">
+          <input id="payDs" type="date">
+          <input id="payTs" type="time">
+        </div>
+      </div>
+      <div id="payStartRough" style="display:none">
+        <div class="rough-row">
+          <select id="payRoughY"></select>
+          <select id="payRoughM">
+            <option value="1">1 月</option><option value="2">2 月</option><option value="3">3 月</option>
+            <option value="4">4 月</option><option value="5">5 月</option><option value="6">6 月</option>
+            <option value="7">7 月</option><option value="8">8 月</option><option value="9">9 月</option>
+            <option value="10">10 月</option><option value="11">11 月</option><option value="12">12 月</option>
+          </select>
+          <select id="payRoughP">
+            <option value="上旬">上旬（1–10 日）</option>
+            <option value="中旬">中旬（11–20 日）</option>
+            <option value="下旬">下旬（21 日起）</option>
+            <option value="底">底（月底最后一天）</option>
+          </select>
+        </div>
+        <div class="rough-hint">店家常只说“8 月下旬开尾款”这类模糊时间，选这个就行；结束时间仍是精确日期。</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>结束时间 <span class="hint">截止日；到点前 1 天、3 天都会提醒</span></label>
+      <div class="row2">
+        <input id="payDe" type="date">
+        <input id="payTe" type="time">
+      </div>
+    </div>
+    <div class="field">
+      <label class="chk-row">
+        <input type="checkbox" id="payPaid">
+        <span>已支付</span>
+      </label>
     </div>
     <p id="payNote" style="font-size:12px;color:var(--brown-soft);line-height:1.6;margin:4px 0 0"></p>
     <div class="modal-actions">
@@ -481,17 +673,48 @@ const CATMAP={}; TAXONOMY.forEach(c=>CATMAP[c.key]=c);
 const PAY_TYPES=["意向金","定金","尾款","全款","运费"];
 
 /* ===================== 数据层 ===================== */
-const KEY="lo_wardrobe_v16", CKEY="lo_calendar_v5";
-let items=[], calendarEvents=[];
-let editingId=null, activeCat="dress", activeSub="", pendingCal=null;
+const KEY="lo_wardrobe_v18";
+const REPAIR_KEY="lo_wardrobe_pay_repair_v1";   // 一次性数据修复标记
+let items=[];
+let editingId=null, activeCat="dress", activeSub="";
 const expanded=new Set();
 
 function id(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function load(){
   try{ const r=localStorage.getItem(KEY); items = r?JSON.parse(r):seed(); }catch(e){ items=seed(); }
-  try{ const c=localStorage.getItem(CKEY); calendarEvents = c?JSON.parse(c):[]; }catch(e){ calendarEvents=[]; }
+  migratePaid();
+  repairPaid();
 }
-function save(){ localStorage.setItem(KEY,JSON.stringify(items)); localStorage.setItem(CKEY,JSON.stringify(calendarEvents)); }
+function migratePaid(){
+  // 旧数据没有「已支付」标记：尾款/全款记录存在即视为已付；定金/现货按开始日期兜底（过去=已付）
+  const today=todayStr();
+  (items||[]).forEach(it=>{
+    (it.pays||[]).forEach(p=>{
+      if(p.paid===undefined){
+        if(p.t==="尾款"||p.t==="全款"){ p.paid=true; return; }
+        const sd=p.ds || p.d || roughRepDate(p.dsRough) || "";
+        p.paid = !!(sd && sd < today);
+      }
+    });
+  });
+}
+/* 一次性修复：旧版曾用「截止日是否在过去」兜底判定，
+   把「已付但截止日在未来」的尾款错标成未付（如某尾款截止日在未来月份）。
+   这里把已存在的尾款/全款统一修正为已付，之后一律以「已支付」勾选为准。 */
+function repairPaid(){
+  let done=false;
+  try{ done = localStorage.getItem(REPAIR_KEY)==="1"; }catch(e){}
+  if(done) return;
+  let n=0;
+  (items||[]).forEach(it=>{
+    (it.pays||[]).forEach(p=>{
+      if((p.t==="尾款"||p.t==="全款") && p.paid!==true){ p.paid=true; n++; }
+    });
+  });
+  try{ localStorage.setItem(REPAIR_KEY,"1"); }catch(e){}
+  if(n) save();
+}
+function save(){ localStorage.setItem(KEY,JSON.stringify(items)); }
 
 function mk(cat,sub,name,brand,colors,pays,extra){
   return Object.assign({id:id(),cat,sub,name:name||"",brand:brand||"",colors:colors?colors.split("|"):[],
@@ -499,620 +722,24 @@ function mk(cat,sub,name,brand,colors,pays,extra){
 }
 function P(t,a,d,o){ return {t,a,d:d||"",o:o||""}; }
 
-/* 公开示例数据（虚构，不含任何私人信息） */
+/* 来自「详细信息.xlsx」的真实衣柜数据 */
 function seed(){
-  return [
-  {
-    "id": "demo001",
-    "cat": "dress",
-    "sub": "JSK",
-    "name": "樱花茶会",
-    "brand": "棉花糖工坊",
-    "colors": [
-      "粉白"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "定金",
-        "a": 80,
-        "d": "2026-03-01",
-        "o": ""
-      },
-      {
-        "t": "尾款",
-        "a": 120,
-        "d": "2026-04-10",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 10,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo002",
-    "cat": "dress",
-    "sub": "OP",
-    "name": "星空夜曲",
-    "brand": "月光茶会",
-    "colors": [
-      "藏蓝",
-      "银"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "全款",
-        "a": 368,
-        "d": "2026-02-14",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 12,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo003",
-    "cat": "dress",
-    "sub": "SK",
-    "name": "薄荷饼干",
-    "brand": "小蔷薇屋",
-    "colors": [
-      "薄荷绿"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "定金",
-        "a": 60,
-        "d": "2026-05-02",
-        "o": ""
-      },
-      {
-        "t": "尾款",
-        "a": 90,
-        "d": "2026-06-08",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 8,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo004",
-    "cat": "inner",
-    "sub": "上衣",
-    "name": "奶油蕾丝内搭",
-    "brand": "星河洛丽塔",
-    "colors": [
-      "米白"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "现货",
-        "a": 59,
-        "d": "2026-07-01",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 6,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo005",
-    "cat": "outer",
-    "sub": "开衫",
-    "name": "莓果针织开衫",
-    "brand": "云朵甜心",
-    "colors": [
-      "浅粉"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "全款",
-        "a": 128,
-        "d": "2026-04-20",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 10,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo006",
-    "cat": "outer",
-    "sub": "斗篷",
-    "name": "雪夜斗篷",
-    "brand": "雾岛原创",
-    "colors": [
-      "灰紫"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "定金",
-        "a": 100,
-        "d": "2026-03-15",
-        "o": ""
-      },
-      {
-        "t": "尾款",
-        "a": 150,
-        "d": "2026-04-22",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 12,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo007",
-    "cat": "head",
-    "sub": "KC",
-    "name": "蝴蝶结KC",
-    "brand": "棉花糖工坊",
-    "colors": [
-      "酒红"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "现货",
-        "a": 39,
-        "d": "2026-06-30",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 6,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo008",
-    "cat": "ear",
-    "sub": "耳夹",
-    "name": "珍珠耳夹",
-    "brand": "月光茶会",
-    "colors": [
-      "白"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "全款",
-        "a": 45,
-        "d": "2026-05-18",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo009",
-    "cat": "neck",
-    "sub": "choker",
-    "name": "丝绒choker",
-    "brand": "小蔷薇屋",
-    "colors": [
-      "黑"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "现货",
-        "a": 29,
-        "d": "2026-07-05",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 6,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo010",
-    "cat": "belt",
-    "sub": "腰封",
-    "name": "缎带腰封",
-    "brand": "星河洛丽塔",
-    "colors": [
-      "香槟"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "定金",
-        "a": 40,
-        "d": "2026-04-02",
-        "o": ""
-      },
-      {
-        "t": "尾款",
-        "a": 60,
-        "d": "2026-05-09",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo011",
-    "cat": "sock",
-    "sub": "袜子",
-    "name": "蕾丝船袜",
-    "brand": "云朵甜心",
-    "colors": [
-      "白"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "全款",
-        "a": 25,
-        "d": "2026-06-11",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 6,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo012",
-    "cat": "shoe",
-    "sub": "鞋子",
-    "name": "圆头小皮鞋",
-    "brand": "雾岛原创",
-    "colors": [
-      "黑"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "全款",
-        "a": 199,
-        "d": "2026-03-28",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 12,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo013",
-    "cat": "hand",
-    "sub": "包",
-    "name": "珍珠手拿包",
-    "brand": "棉花糖工坊",
-    "colors": [
-      "粉"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "定金",
-        "a": 70,
-        "d": "2026-05-20",
-        "o": ""
-      },
-      {
-        "t": "尾款",
-        "a": 110,
-        "d": "2026-06-26",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 10,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo014",
-    "cat": "petticoat",
-    "sub": "裙撑",
-    "name": "双层裙撑",
-    "brand": "月光茶会",
-    "colors": [
-      "白"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": true,
-    "pays": [
-      {
-        "t": "现货",
-        "a": 89,
-        "d": "2026-07-08",
-        "o": ""
-      },
-      {
-        "t": "运费",
-        "a": 8,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": ""
-  },
-  {
-    "id": "demo015",
-    "cat": "dress",
-    "sub": "OP",
-    "name": "蔷薇庭院OP",
-    "brand": "小蔷薇屋",
-    "colors": [
-      "藕粉"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": false,
-    "pays": [
-      {
-        "t": "定金",
-        "a": 120,
-        "d": "",
-        "o": ""
-      },
-      {
-        "t": "尾款",
-        "a": 180,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": "",
-    "prio": "most"
-  },
-  {
-    "id": "demo016",
-    "cat": "dress",
-    "sub": "JSK",
-    "name": "仲夏童话JSK",
-    "brand": "星河洛丽塔",
-    "colors": [
-      "天蓝"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": false,
-    "pays": [
-      {
-        "t": "全款",
-        "a": 428,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": "",
-    "prio": "price"
-  },
-  {
-    "id": "demo017",
-    "cat": "outer",
-    "sub": "外套",
-    "name": "羊毛短外套",
-    "brand": "云朵甜心",
-    "colors": [
-      "驼色"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": false,
-    "pays": [
-      {
-        "t": "现货",
-        "a": 358,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": "",
-    "prio": "price"
-  },
-  {
-    "id": "demo018",
-    "cat": "head",
-    "sub": "BNT",
-    "name": "缎带BNT",
-    "brand": "雾岛原创",
-    "colors": [
-      "鹅黄"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": false,
-    "pays": [
-      {
-        "t": "全款",
-        "a": 55,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": "",
-    "prio": "most"
-  },
-  {
-    "id": "demo019",
-    "cat": "handacc",
-    "sub": "手袖",
-    "name": "蕾丝手袖",
-    "brand": "棉花糖工坊",
-    "colors": [
-      "白"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": false,
-    "pays": [
-      {
-        "t": "定金",
-        "a": 30,
-        "d": "",
-        "o": ""
-      },
-      {
-        "t": "尾款",
-        "a": 45,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": "",
-    "prio": "price"
-  },
-  {
-    "id": "demo020",
-    "cat": "body",
-    "sub": "胸针",
-    "name": "绣球花胸针",
-    "brand": "月光茶会",
-    "colors": [
-      "紫"
-    ],
-    "sizes": [],
-    "img": "",
-    "imgs": [],
-    "source": "示例数据·可自由编辑",
-    "owned": false,
-    "pays": [
-      {
-        "t": "现货",
-        "a": 49,
-        "d": "",
-        "o": ""
-      }
-    ],
-    "note": "",
-    "prio": "price"
-  }
-];
+  return [];
 }
 
 /* ===================== 计算 ===================== */
 function has(it,t){ return (it.pays||[]).some(p=>p.t===t); }
 function sumPay(it){ return (it.pays||[]).reduce((s,p)=>s+(Number(p.a)||0),0); }
+/* 付款状态：一律以每条记录的「已支付」勾选为准，
+   不能只看「记录是否存在」——填了尾款日期但没勾已支付，仍应算「待付尾款」。 */
 function payState(it){
-  if(has(it,"全款")||has(it,"尾款")) return "clear";
-  if(has(it,"定金")) return "waitF";
-  if(has(it,"意向金")) return "waitD";
+  const pays=it.pays||[];
+  const isPaid=t=>pays.some(p=>p.t===t && p.paid===true);
+  const hasT  =t=>pays.some(p=>p.t===t);
+  if(isPaid("全款")||isPaid("尾款")) return "clear";                  // 尾款/全款已付清
+  if(isPaid("定金")||hasT("尾款")||hasT("全款")) return "waitF";      // 定金已付，尾款待付（含已填尾款但未勾已支付）
+  if(isPaid("意向金")||hasT("定金")) return "waitD";                  // 定金待付
+  if(hasT("现货")) return "clear";                                     // 现货已买到
   return "none";
 }
 const STATE_LABEL={clear:"✅ 已付清",waitF:"⏳ 待付尾款",waitD:"💗 已交意向金",none:"— 未付款"};
@@ -1147,7 +774,7 @@ function setMap(){
 function inSet(it){ return !!(isSetName(it.name) && items.filter(x=>x.name===it.name).length>1); }
 
 /* ===================== 渲染 ===================== */
-function render(){ renderStats(); renderSidebar(); renderSubbar(); renderMain(); renderSets(); renderSchedule(); renderWishlist(); renderCalendar(); renderCrawl(); }
+function render(){ renderStats(); renderSidebar(); renderSubbar(); renderMain(); renderSets(); renderSchedule(); renderWishlist(); renderCrawl(); }
 
 function renderStats(){
   const own=items.filter(i=>i.owned);
@@ -1212,8 +839,8 @@ function accItem(it,opts){
   opts=opts||{};
   const open=expanded.has(it.id);
   const st=payState(it);
-  /* 已购单品直接显示 it.img（商品图/抓取图）；想买清单继续优先人台图/参考图 */
-  const mainImg = it.owned ? (it.img||'') : bestImg(it);
+  /* 首图统一优先人台图→参考图→it.img（衣柜与想买清单一致，转入后仍保人台图） */
+  const mainImg = bestImg(it);
   const setTag = it.cat==="dress" ? "" :
     (inSet(it)?`<span class="st set">💞 一套</span>`:`<span class="st alone">💧 零散</span>`);
   const dragAttr = opts.drag?` draggable="true" ondragstart="dragStart(event,'${it.id}')" ondragend="dragEnd(event)"`:"";
@@ -1239,9 +866,9 @@ function accItem(it,opts){
 function detail(it){
   const st=payState(it), total=sumPay(it);
   const kids=items.filter(x=>x.name&&x.name===it.name&&x.id!==it.id);
-  /* 已购单品直接显示 it.img（商品图），想买清单优先人台图/参考图 */
-  const mainImg = it.owned ? (it.img||'') : bestImg(it);
-  const zoomSrc = it.owned ? (it.imgRaw||it.img||'') : bestRaw(it);
+  /* 首图统一优先人台图→参考图→it.img；原图优先 raw，其次人台图 */
+  const mainImg = bestImg(it);
+  const zoomSrc = (it.owned && it.imgRaw) ? it.imgRaw : bestImg(it);
   let html=`<div class="detail-grid">
     <div class="detail-img" style="${mainImg?`background-image:url('${mainImg}')`:''}" onclick="showImg('${esc(zoomSrc)}','${esc(label(it))} 原图')" title="点击查看原图">${mainImg?'':emo(it)}</div>
     <div class="detail-info">
@@ -1301,8 +928,9 @@ function detail(it){
   }
 
   html+=`<div class="row-actions">
-    <button onclick="event.stopPropagation();openForm('${it.id}')">✏️ 编辑</button>
-    <button class="del" onclick="event.stopPropagation();delItem('${it.id}')">🗑 删除</button>
+    <button onclick="event.stopPropagation();openForm('${it.id}')">✏️ 编辑</button>`;
+  if(!it.owned) html+=`<button class="move" onclick="event.stopPropagation();moveToSchedule('${it.id}')">📥 开团啦，转入定金尾款</button>`;
+  html+=`<button class="del" onclick="event.stopPropagation();delItem('${it.id}')">🗑 删除</button>
   </div>`;
   return html;
 }
@@ -1341,25 +969,80 @@ function renderSets(){
 
 /* ---------- 定金尾款 ---------- */
 function fmtMonth(m){ const p=m.split('-'); return p[0]+'年'+parseInt(p[1],10)+'月'; }
+// 某笔款项是否已实际付清：按付款进度(payState)判定，而非只看日期
+// （很多已付的裙子没填日期，若只看日期就会漏判成"未付/白卡"）
+function eventPaid(it, type, payIdx){
+  if(type==="现货") return true;                          // 在衣柜里 = 已买到
+  const rec=(it.pays||[])[payIdx];
+  if(payIdx<0 || !rec) return false;                       // 合成任务（待付尾款/待付定金）一律待付
+  return rec.paid===true;                                  // 以「已支付」勾选为准：填了日期≠已付，勾了才算
+}
+function seriesItems(it){
+  const n=(it.name||"").trim();
+  if(!n) return [];
+  return items.filter(x=>x!==it && (x.name||"").trim()===n);
+}
 function buildEvents(){
   const evs=[];
   items.forEach(it=>{
-    if(!it.owned) return;        // 想买清单 / 未开始买的套装不计入定金尾款；已下定金或补尾款的套装仍计入
+    if(!it.owned) return;        // 想买清单不计入定金尾款
     (it.pays||[]).forEach((p,idx)=>{
-      if(["定金","尾款","意向金"].includes(p.t) && p.d)
-        evs.push({date:p.d,type:p.t,amt:Number(p.a)||0,it,paid:true,order:p.o,payIdx:idx});
+      if(!["定金","尾款","现货"].includes(p.t)) return;
+      const sd=startDateOf(p), ed=p.de||"";
+      const roughLbl = (p.dsRough && p.dsRough.y) ? startLabel(p) : "";
+      // 一条付款 = 一张卡片（开始→结束合并显示）
+      evs.push({
+        sd, ed, ts:p.ts||"", te:p.te||"",
+        dsRough: (p.dsRough && p.dsRough.y) ? p.dsRough : null,
+        type:p.t, amt:Number(p.a)||0,
+        it, paid:eventPaid(it,p.t,idx), payIdx:idx,
+        rough:roughLbl,
+        date: sd                      // 卡片主日期 = 开始时间（用于排序/分组）
+      });
     });
     if(payState(it)==="waitF"){
-      evs.push({date:it.finalDue||"",type:"尾款",amt:0,it,paid:false});
+      const hasWei=(it.pays||[]).some(p=>p.t==="尾款");
+      if(!hasWei){
+        // 定金已付、尾款还没记 → 补一条「待付尾款」任务，否则时间线只显示已付的定金
+        evs.push({sd:"",ed:"",ts:"",te:"",dsRough:null,type:"尾款",amt:0,it,paid:false,payIdx:-1,date:""});
+      }
+    }
+    if(payState(it)==="waitD" && !has(it,"定金")){
+      // 已交意向金、还没付定金 → 补一条「待付定金」任务
+      evs.push({sd:"",ed:"",ts:"",te:"",dsRough:null,type:"定金",amt:0,it,paid:false,payIdx:-1,date:""});
     }
   });
   return evs;
 }
+/* 同系列（同名）一件确定了定金/尾款时间，整系列同步该时间窗口（金额各件保留独立） */
+function propagateSeriesTime(src, type){
+  const n=(src.name||"").trim();
+  if(!n) return "";
+  const srcRec=(src.pays||[]).find(p=>p.t===type);
+  if(!srcRec) return "";
+  let count=0; const names=[];
+  items.forEach(sib=>{
+    if(sib===src) return;
+    if((sib.name||"").trim()!==n) return;
+    let rec=(sib.pays||[]).find(p=>p.t===type);
+    if(!rec){ rec={t:type,a:0,o:""}; sib.pays=sib.pays||[]; sib.pays.push(rec); }
+    // 仅同步时间窗口，不覆盖各件「已支付」状态与金额
+    rec.ds=srcRec.ds||"";
+    rec.ts=srcRec.ts||"";
+    rec.dsRough = (srcRec.dsRough && srcRec.dsRough.y) ? srcRec.dsRough : null;
+    rec.de=srcRec.de||"";
+    rec.te=srcRec.te||"";
+    delete rec.d;
+    if(rec.paid===undefined) rec.paid=false;
+    count++; names.push(label(sib));
+  });
+  if(count>0) return `已把「${type}」时间同步到同系列 ${count} 件：${names.join("、")} 🔗`;
+  return "";
+}
 function renderSchedule(){
   const evs=buildEvents();
-  const dated=evs.filter(e=>e.date), undated=evs.filter(e=>!e.date);
   const sel=document.getElementById('monthFilter');
-  const months=[...new Set(dated.map(e=>e.date.slice(0,7)))].sort().reverse();
+  const months=[...new Set(evs.filter(e=>e.date).map(e=>e.date.slice(0,7)))].sort().reverse();
   if(sel){
     const cur=sel.value;
     sel.innerHTML='<option value="">📅 全部月份</option>'+months.map(m=>`<option value="${m}">${fmtMonth(m)}</option>`).join('');
@@ -1367,72 +1050,146 @@ function renderSchedule(){
   }
   const mf=sel?sel.value:"";
   const sf=(document.getElementById('stateFilter')||{}).value||"";
-  let view=dated;
-  if(mf) view=view.filter(e=>e.date.slice(0,7)===mf);
-  if(sf==="wait") view=[];
-  if(sf==="paid") view=view.filter(e=>e.paid);
-  let showUndated = sf!=="paid" && (!mf || sf==="wait");
-
+  const tf=(document.getElementById('typeFilter')||{}).value||"";
+  // 按筛选取出事件（待付与已付都纳入，便于统一排序）
+  let view=evs.filter(e=>{
+    if(mf && (!e.date || e.date.slice(0,7)!==mf)) return false;
+    if(sf==="wait" && e.paid) return false;
+    if(sf==="paid" && !e.paid) return false;
+    if(tf && e.type!==tf) return false;
+    return true;
+  });
+  // 待付优先：没付的放最上面（未填日期的置顶，提醒先填时间）
+  const pending=view.filter(e=>!e.paid);
+  const rest=view.filter(e=>e.paid);
+  pending.sort((a,b)=> ((a.date?"1":"0")+(a.date||"9999")).localeCompare((b.date?"1":"0")+(b.date||"9999")) );
   const groups={};
-  view.forEach(e=>{ const m=e.date.slice(0,7); (groups[m]=groups[m]||[]).push(e); });
-  const ms=Object.keys(groups).sort().reverse();
+  rest.forEach(e=>{ const m=e.date? e.date.slice(0,7):"__undated"; (groups[m]=groups[m]||[]).push(e); });
+  const ms=Object.keys(groups).filter(m=>m!=="__undated").sort().reverse();
   const box=document.getElementById('scheduleList');
   let html="";
 
-  if(showUndated && undated.length){
-    html+=`<div class="month-group"><h3 class="month-h">⏳ 尾款待付（日期待定）<span class="month-sum">${undated.length} 笔</span></h3><div class="timeline">`+
-      undated.map(e=>tlItem(e)).join('')+`</div></div>`;
+  if(pending.length){
+    html+=`<div class="month-group"><h3 class="month-h">⏳ 待付优先<span class="month-sum">${pending.length} 笔待处理</span></h3><div class="timeline">`+
+      pending.map(e=>tlItem(e)).join('')+`</div></div>`;
   }
   ms.forEach(m=>{
-    const its=groups[m].sort((a,b)=>b.date.localeCompare(a.date));
+    const its=groups[m].sort((a,b)=>a.date.localeCompare(b.date));   // 组内按开始时间升序
     const sum=its.reduce((s,e)=>s+e.amt,0);
     html+=`<div class="month-group"><h3 class="month-h">📆 ${fmtMonth(m)}<span class="month-sum">${its.length} 笔 · 共 ¥${sum.toFixed(2)}</span></h3><div class="timeline">`+
       its.map(e=>tlItem(e)).join('')+`</div></div>`;
   });
+  if(groups["__undated"] && groups["__undated"].length){
+    const its=groups["__undated"].sort((a,b)=>a.date.localeCompare(b.date));
+    html+=`<div class="month-group"><h3 class="month-h">📌 日期待定<span class="month-sum">${its.length} 笔</span></h3><div class="timeline">`+
+      its.map(e=>tlItem(e)).join('')+`</div></div>`;
+  }
   box.innerHTML = html || '<div class="empty">这个筛选下没有记录～换个月份或状态看看</div>';
 }
 function tlItem(e){
-  const it=e.it, ico=e.type==="定金"?"💸":e.type==="尾款"?"🎁":"💗";
-  const key = it.id+"|"+e.type;
-  const inCal = calendarEvents.some(c=>c.key===key);
-  const badge = e.paid
-    ? `<span class="st paid">✅ 已付</span>`
-    : `<span class="st waitF">⏳ 待付</span>`;
-  const editArgs = e.paid ? `'${it.id}',${e.payIdx}` : `'${it.id}',-1`;
+  const it=e.it, ico=e.type==="定金"?"💸":e.type==="尾款"?"🎁":e.type==="现货"?"🛍️":"💗";
+  // 开始时间文本
+  const sTxt = e.rough ? e.rough : ((e.sd||"") + (e.ts? (" "+e.ts) : "")) || "日期待定";
+  // 结束时间文本
+  const eTxt = e.ed ? (e.ed + (e.te? (" "+e.te) : "")) : "";
+  const range = eTxt ? `${sTxt} <span class="tl-arrow">→</span> ${eTxt}` : sTxt;
+  const isClear = payState(it)==="clear";
+  const badge = (!e.sd && !e.ed && !e.rough)
+    ? `<span class="st waitF">📌 日期待定</span>`
+    : (e.paid ? `<span class="st paid">${isClear?'✅ 已付清':'✅ 已记录'}</span>` : `<span class="st waitF">⏳ 待办</span>`);
+  const editArgs = e.payIdx>=0 ? `'${it.id}',${e.payIdx}` : `'${it.id}',-1,'${e.type}'`;
+  // 同系列标记
+  const sibs=seriesItems(it);
+  const seriesTag = sibs.length ? `<span class="st sub" title="同系列共 ${sibs.length+1} 件（同名）">🔗 系列·${sibs.length+1}件</span>` : "";
   return `<div class="tl-item${e.paid?' done':''}">
-    <div class="tl-date">${e.date||"日期待定"} · ${ico} ${e.type}${e.type==="尾款"&&!e.paid?"日（待商家通知）":"日"}</div>
-    <div class="tl-title">${esc(label(it))}${it.cat!=='dress'?` <span class="st sub">${it.sub}</span>`:''}</div>
-    <div class="tl-meta">${esc(it.brand||"")} · ${e.paid?("¥"+e.amt.toFixed(2)):"金额待定"}</div>
+    <div class="tl-date">${ico} ${e.type}：${range}</div>
+    <div class="tl-title">${esc(label(it))}${it.cat!=='dress'?` <span class="st sub">${it.sub}</span>`:''} ${seriesTag}</div>
+    <div class="tl-meta">${esc(it.brand||"")} · ${e.amt?("¥"+e.amt.toFixed(2)):"金额待定"}</div>
     <div style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       ${badge}
       <button class="cal-btn edit" onclick="openEditPay(${editArgs})">✏️ 编辑时间</button>
-      ${!e.paid ? (inCal
-        ? `<button class="cal-btn done">✅ 已写入日历</button>`
-        : `<button class="cal-btn" onclick="askCal('${it.id}','${e.type}')">📅 写入日历</button>`) : ''}
     </div>
   </div>`;
 }
 
 /* ---------- 添加 / 编辑定金尾款 ---------- */
 let payEditCtx=null;   // {mode:'add'} 或 {mode:'edit', itId, payIdx}
+
+/* 大概日期（年+月+上旬/中旬/下旬/底）↔ 具体代表日：用于排序与日历导出 */
+function roughRepDate(r){
+  if(!r||!r.y||!r.m||!r.p) return "";
+  const y=+r.y, m=+r.m;
+  if(r.p==="底"){ const ld=new Date(y,m,0).getDate(); return `${y}-${String(m).padStart(2,"0")}-${String(ld).padStart(2,"0")}`; }
+  const d={上旬:1,中旬:11,下旬:21}[r.p]||1;
+  return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+}
+function startLabel(p){
+  if(p.dsRough && p.dsRough.y) return `${p.dsRough.y}年${p.dsRough.m}月 ${p.dsRough.p}`;
+  if(p.ds) return p.ds + (p.ts? (" "+p.ts) : "");
+  return "待定";
+}
+function startDateOf(p){ return p.ds || roughRepDate(p.dsRough) || p.d || ""; }
+function setPayMode(mode){
+  document.getElementById('payModeExact').classList.toggle('on',mode==='exact');
+  document.getElementById('payModeRough').classList.toggle('on',mode==='rough');
+  document.getElementById('payStartExact').style.display = mode==='exact'?'block':'none';
+  document.getElementById('payStartRough').style.display = mode==='rough'?'block':'none';
+  if(mode==='exact'){ document.getElementById('payRoughY').value=""; document.getElementById('payRoughM').value=""; document.getElementById('payRoughP').value=""; }
+  else { document.getElementById('payDs').value=""; document.getElementById('payTs').value=""; }
+}
+function fillRoughYears(){
+  const ySel=document.getElementById('payRoughY');
+  if(!ySel || ySel.options.length) return;
+  const cy=new Date().getFullYear(), html=[];
+  for(let y=cy-2;y<=cy+3;y++) html.push(`<option value="${y}">${y} 年</option>`);
+  ySel.innerHTML=html.join('');
+}
 function buildItemOptions(selId){
   const sel=document.getElementById(selId);
   const owned=items.filter(i=>i.owned);
   sel.innerHTML=owned.map(i=>`<option value="${i.id}">${esc(label(i))}${i.sub?(" · "+esc(i.sub)):""}${i.brand?("（"+esc(i.brand)+"）"):""}</option>`).join('');
 }
-function openAddPay(){
-  payEditCtx={mode:"add"};
+function openAddPay(preId, fromWish){
+  payEditCtx={mode:"add", fromWish:!!fromWish};
   document.getElementById('payTitle').textContent="➕ 添加定金 / 尾款";
   buildItemOptions('payItem');
-  document.getElementById('payItem').disabled=false;
+  const sel=document.getElementById('payItem');
+  sel.disabled=false;
+  if(preId){
+    // 想买清单转入的单品此刻还没 owned，选项里没有它，手动补一个临时项
+    if(![...sel.options].some(o=>o.value===preId)){
+      const it=items.find(i=>i.id===preId);
+      if(it) sel.insertAdjacentHTML('afterbegin',
+        `<option value="${it.id}">${esc(label(it))}${it.sub?(" · "+esc(it.sub)):""}${it.brand?("（"+esc(it.brand)+"）"):""}（想买转入）</option>`);
+    }
+    sel.value=preId;
+    if(fromWish) sel.disabled=true;   // 转入时不允许换别的单品
+  }
   document.getElementById('payType').value="定金";
   document.getElementById('payAmt').value="";
-  document.getElementById('payDate').value="";
-  document.getElementById('payNote').textContent="添加后这条会显示在「定金尾款」对应月份下。";
+  document.getElementById('payDs').value="";
+  document.getElementById('payTs').value="";
+  document.getElementById('payDe').value="";
+  document.getElementById('payTe').value="";
+  document.getElementById('payRoughY').value="";
+  document.getElementById('payRoughM').value="";
+  document.getElementById('payRoughP').value="";
+  document.getElementById('payPaid').checked=false;   // 新增默认「待付」，付了再勾
+  fillRoughYears();
+  setPayMode('exact');
+  document.getElementById('payNote').textContent= fromWish
+    ? "补上「开始时间」（定金要精确到分）并保存，它才会从「想买清单」正式转入「我的衣柜」，并出现在这里。点取消就留在想买清单。"
+    : (preId? "这件刚从想买清单转入～补上开始/结束时间，它就会出现在这里，并可导出到手机日历提醒。" : "添加后这条会按开始时间排在「定金尾款」对应月份下。");
   document.getElementById('payDelete').style.display="none";
   document.getElementById('payOverlay').classList.add('open');
 }
-function openEditPay(itId,payIdx){
+/* 想买清单里某件要开团了：打开添加表单预选它，但先不挪进衣柜，保存定金/尾款日期后才转入 */
+function moveToSchedule(itId){
+  const it=items.find(x=>x.id===itId); if(!it) return;
+  openAddPay(itId, true);   // 先不标 owned，保存后才从想买清单转入衣柜
+  toast("开团啦～补上定金/尾款日期并保存，它就会转入「我的衣柜」🎀");
+}
+function openEditPay(itId,payIdx,taskType){
   const it=items.find(i=>i.id===itId); if(!it) return;
   payEditCtx={mode:"edit",itId,payIdx};
   document.getElementById('payTitle').textContent="✏️ 编辑付款时间";
@@ -1443,14 +1200,41 @@ function openEditPay(itId,payIdx){
     const p=it.pays[payIdx];
     document.getElementById('payType').value=p.t;
     document.getElementById('payAmt').value=p.a!=""?Number(p.a):"";
-    document.getElementById('payDate').value=p.d||"";
-    document.getElementById('payNote').textContent="主要改「日期」即可，类型/金额也能改。";
+    document.getElementById('payDe').value=p.de||"";
+    document.getElementById('payTe').value=p.te||"";
+    fillRoughYears();
+    if(p.dsRough && p.dsRough.y){
+      setPayMode('rough');
+      document.getElementById('payRoughY').value=p.dsRough.y;
+      document.getElementById('payRoughM').value=p.dsRough.m;
+      document.getElementById('payRoughP').value=p.dsRough.p;
+      document.getElementById('payDs').value="";
+      document.getElementById('payTs').value="";
+    }else{
+      setPayMode('exact');
+      document.getElementById('payDs').value=p.ds||p.d||"";
+      document.getElementById('payTs').value=p.ts||"";
+      document.getElementById('payRoughY').value="";
+      document.getElementById('payRoughM').value="";
+      document.getElementById('payRoughP').value="";
+    }
+    document.getElementById('payNote').textContent="改「开始/结束时间」即可，类型/金额也能改。";
+    document.getElementById('payPaid').checked = !!p.paid;
   }else{
-    // 待付尾款（合成事件）：编辑 it.finalDue
-    document.getElementById('payType').value="尾款";
+    // 待付任务（合成事件：待付尾款/待付定金）：编辑后保存会创建一条真实付款记录
+    document.getElementById('payType').value=taskType||"尾款";
     document.getElementById('payAmt').value="";
-    document.getElementById('payDate').value=it.finalDue||"";
-    document.getElementById('payNote').textContent="这是待付尾款（日期待定）。填上日期后，它会出现在对应月份下。";
+    document.getElementById('payDe').value="";
+    document.getElementById('payTe').value="";
+    fillRoughYears();
+    setPayMode('exact');
+    document.getElementById('payDs').value="";
+    document.getElementById('payTs').value="";
+    document.getElementById('payRoughY').value="";
+    document.getElementById('payRoughM').value="";
+    document.getElementById('payRoughP').value="";
+    document.getElementById('payPaid').checked=false;
+    document.getElementById('payNote').textContent="";
   }
   document.getElementById('payDelete').style.display="inline-block";
   document.getElementById('payOverlay').classList.add('open');
@@ -1458,39 +1242,61 @@ function openEditPay(itId,payIdx){
 function closePay(){ document.getElementById('payOverlay').classList.remove('open'); payEditCtx=null; }
 function savePay(){
   if(!payEditCtx) return;
+  const fromWish=payEditCtx.fromWish;
   const itId=document.getElementById('payItem').value;
   const it=items.find(i=>i.id===itId); if(!it) return;
   const t=document.getElementById('payType').value;
   const a=parseFloat(document.getElementById('payAmt').value)||0;
-  const d=document.getElementById('payDate').value;
-  if(payEditCtx.mode==="add"){
-    if(!d){ toast("请先填日期"); return; }
-    it.pays=it.pays||[];
-    it.pays.push({t,a,d,o:""});
+  const paid=document.getElementById('payPaid').checked;
+  const de=document.getElementById('payDe').value;
+  const te=document.getElementById('payTe').value;
+  const rough = document.getElementById('payModeRough').classList.contains('on');
+  let ds="", ts="", dsRough=null;
+  if(rough){
+    const ry=document.getElementById('payRoughY').value;
+    const rm=document.getElementById('payRoughM').value;
+    const rp=document.getElementById('payRoughP').value;
+    if(ry && rm && rp) dsRough={y:ry, m:rm, p:rp};
   }else{
-    const {itId,payIdx}=payEditCtx;
-    if(payIdx>=0 && it.pays[payIdx]){
-      const p=it.pays[payIdx];
-      p.t=t; p.a=a; p.d=d;
-    }else{
-      it.finalDue=d;   // 待付尾款日期
-    }
+    ds=document.getElementById('payDs').value;
+    ts=document.getElementById('payTs').value;
   }
-  save(); renderSchedule(); renderCalendar();
+  if(payEditCtx.mode==="add"){
+    if(!ds && !dsRough){ toast("请先填开始时间（精确日期，或大概日期的年/月/旬），否则它还会留在想买清单里哦"); return; }
+    it.pays=it.pays||[];
+    it.pays.push({t,a,ds,ts,dsRough,de,te,o:"",paid});
+    if(fromWish) it.owned=true;   // 转入：保存后才正式进衣柜
+    }else{
+      const {itId,payIdx}=payEditCtx;
+      if(payIdx>=0 && it.pays[payIdx]){
+        const p=it.pays[payIdx];
+        p.t=t; p.a=a; p.ds=ds; p.ts=ts; p.dsRough=dsRough; p.de=de; p.te=te; p.paid=paid;
+        delete p.d;   // 清掉旧 seed 遗留的 d 字段，统一用 ds
+      }else{
+        // 待付任务（合成事件：待付尾款/待付定金）：保存时真正创建一条付款记录（含金额、日期）
+        it.pays=it.pays||[];
+        it.pays.push({t,a,ds,ts,dsRough,de,te,o:"",paid});
+        it.finalDue=undefined; it.finalDueRough=undefined;  // 不再需要合成任务占位
+      }
+    }
+  // 同系列（同名）：确定一件的定金/尾款时间，整系列同步该时间窗口
+  let syncMsg="";
+  if(t==="定金" || t==="尾款") syncMsg=propagateSeriesTime(it,t);
+  save();
+  if(fromWish){ renderWishlist(); renderMain(); renderStats(); switchTab('schedule'); }
+  renderSchedule();
   closePay();
-  toast("已保存 💾");
+  const baseToast = fromWish? "已转入「我的衣柜」并生成定金尾款记录 🎀" : "已保存 💾";
+  toast(syncMsg? (baseToast+" ｜ "+syncMsg) : baseToast);
 }
 function deletePay(){
   if(!payEditCtx||payEditCtx.mode!=="edit") return;
   const {itId,payIdx}=payEditCtx;
   const it=items.find(i=>i.id===itId); if(!it) return;
   if(payIdx>=0 && it.pays[payIdx]){
-    const delType=it.pays[payIdx].t;
     it.pays.splice(payIdx,1);
-    // 清掉已写入日历的相关提醒
-    calendarEvents=calendarEvents.filter(c=>!(c.itemId===itId && c.type===delType));
   }
-  save(); renderSchedule(); renderCalendar();
+  save(); renderSchedule();
   closePay();
   toast("已删除 🗑");
 }
@@ -1531,57 +1337,87 @@ function dropWish(e,k){
 }
 
 /* ---------- 日历 ---------- */
-function askCal(itemId,type){
-  const it=items.find(x=>x.id===itemId); if(!it) return;
-  pendingCal={itemId,type};
-  document.getElementById('calWhat').textContent=label(it)+" 的"+type+"提醒";
-  document.getElementById('calPreview').innerHTML=
-    `🎀 <b>${esc(label(it))}</b>（${esc(it.sub)}）<br>🏬 ${esc(it.brand||"")}<br>💰 ${type}${type==="尾款"?"（金额以商家通知为准）":""}<br>⏰ 到期当天 + 提前 3 天各提醒一次`;
-  document.getElementById('calOverlay').classList.add('open');
+/* 日历菜单已移除：提醒统一走「导出到手机日历」(.ics)，由手机系统日历负责到点提醒 */
+
+/* ---------- 导出 .ics 到手机系统日历 ---------- */
+function todayStr(){ const d=new Date(); const p=n=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+/* 只导出「待付」的付款提醒，并按起始日期过滤：
+   - 已勾「已支付」的定金/尾款 → 跳过（付过的不再提醒）
+   - 未勾的定金/尾款 → 开始日、截止日各导出一条提醒
+   - 现货掉落提醒 → 始终导出（关心掉落时间）
+   - 仅导出起始日及之后的（已过期的不导）
+   没有具体日期的待付项，统一放在「起始日」那天作为提醒。 */
+function collectExportEvents(fromDate){
+  const out=[], seen=new Set();
+  const base=fromDate||todayStr();
+  const push=(date,time,kind,phase,title,sub,brand)=>{
+    if(!date||!/^\d{4}-\d{2}-\d{2}/.test(date)) return;
+    if(date<base) return;                          // 只导起始日及之后
+    const k=date+"|"+kind+"|"+phase+"|"+title;
+    if(seen.has(k)) return; seen.add(k);
+    out.push({date,time:time||"",kind,phase,title,sub:sub||"",brand:brand||""});
+  };
+  items.forEach(it=>{
+    if(!it.owned) return;                          // 想买清单不导出
+    (it.pays||[]).forEach(p=>{
+      if(!["定金","尾款","现货"].includes(p.t)) return;
+      // 已勾「已支付」的定金/尾款 → 不再进提醒；现货掉落提醒始终导出
+      if((p.t==="定金"||p.t==="尾款") && p.paid===true) return;
+      const sd=startDateOf(p), ed=p.de||"", st=p.ts||"", et=p.te||"";
+      if(sd) push(sd, st, p.t, "开始", label(it), it.sub, it.brand);
+      if(ed) push(ed, et, p.t, "结束", label(it), it.sub, it.brand);
+    });
+  });
+  return out.sort((a,b)=> (a.date+a.time).localeCompare(b.date+b.time));
 }
-function closeCal(){ document.getElementById('calOverlay').classList.remove('open'); pendingCal=null; }
-function confirmCal(){
-  if(!pendingCal) return closeCal();
-  const it=items.find(x=>x.id===pendingCal.itemId);
-  addCal(it,pendingCal.type);
-  closeCal(); save(); renderSchedule(); renderCalendar();
-  toast("已写入日历，到点会提醒你 🔔");
-  if("Notification" in window && Notification.permission==="default") Notification.requestPermission();
-}
-function addCal(it,type){
-  const key=it.id+"|"+type;
-  if(calendarEvents.some(c=>c.key===key)) return false;
-  calendarEvents.push({key,itemId:it.id,type,title:label(it),sub:it.sub,brand:it.brand,date:it.finalDue||"待定"});
-  return true;
-}
-function writeAllCalendar(){
-  let n=0;
-  items.filter(i=>i.owned && payState(i)==="waitF").forEach(it=>{ if(addCal(it,"尾款")) n++; });
-  save(); renderSchedule(); renderCalendar();
-  toast(n?`已把 ${n} 条待付尾款写入日历 🔔`:"没有新的待付尾款需要写入");
-  if(n&&"Notification" in window && Notification.permission==="default") Notification.requestPermission();
-}
-function clearCalendar(){ calendarEvents=[]; save(); renderCalendar(); renderSchedule(); toast("提醒已清空"); }
-function renderCalendar(){
-  const box=document.getElementById('calList');
-  if(!calendarEvents.length){ box.innerHTML='<div class="empty">还没有日历提醒～去「定金尾款」页点「📅 写入日历」吧</div>'; return; }
-  box.innerHTML=calendarEvents.map(c=>`<div class="cal-item">
-    <div class="cal-ico">${c.type==="定金"?"💸":"🎁"}</div>
-    <div class="cal-main"><div class="tt">${esc(c.title)} · ${esc(c.sub||"")}</div>
-    <div class="mt">${esc(c.brand||"")} · ${c.type}提醒 · ${c.date}</div></div>
-    <span class="st waitF">${c.type}</span>
-    <button class="cal-btn" onclick="fire('${esc(c.title)}','${c.type}')">🔔 模拟到点提醒</button>
-    <button class="cal-btn" onclick="rmCal('${c.key}')">🗑</button>
-  </div>`).join('');
-}
-function rmCal(k){ calendarEvents=calendarEvents.filter(c=>c.key!==k); save(); renderCalendar(); renderSchedule(); toast("已移除该提醒"); }
-function fire(t,type){
-  const body=`「${t}」的${type}该付啦，别忘记去店铺付款哦 🎀`;
-  if("Notification" in window && Notification.permission==="granted"){ new Notification("🎀 Lo 娘衣柜提醒",{body}); }
-  else if("Notification" in window && Notification.permission==="default"){
-    Notification.requestPermission().then(p=>{ if(p==="granted") new Notification("🎀 Lo 娘衣柜提醒",{body}); else toast(body); });
-  } else toast(body);
-  toast(body);
+function exportICS(btn){
+  const input = btn && btn.closest ? btn.closest('.toolbar').querySelector('.export-from') : null;
+  const fromDate = input && input.value ? input.value : todayStr();
+  const evs=collectExportEvents(fromDate);
+  if(!evs.length){ toast("在「"+fromDate+"」之后没有待付的提醒可导出～已付清、已过期或还没填日期的已自动跳过"); return; }
+  const pad=n=>String(n).padStart(2,"0");
+  const fmtLocal=(d,time,off=0)=>{
+    const [y,m,day]=d.split("-").map(Number);
+    let hh=10,mm=0;
+    if(time && /^\d{1,2}:\d{2}$/.test(time)){ const [h,mi]=time.split(":").map(Number); hh=h; mm=mi; }
+    const dt=new Date(y,m-1,day,hh,mm,0); dt.setDate(dt.getDate()+off);
+    return dt.getFullYear()+pad(dt.getMonth()+1)+pad(dt.getDate())+"T"+pad(dt.getHours())+pad(dt.getMinutes())+pad(dt.getSeconds());
+  };
+  const dtstamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+  const escICS=s=>String(s==null?"":s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n").replace(/\r/g,"");
+  const VERB={
+    "定金|开始":"定金开抢啦（精确到分，别错过）🎀",
+    "定金|结束":"定金截止啦，最后机会",
+    "尾款|开始":"尾款开始付啦",
+    "尾款|结束":"尾款截止啦（最后期限，别漏交）",
+    "现货|开始":"现货开售掉落啦，去蹲",
+    "现货|结束":"现货截售啦（抓紧最后机会）"
+  };
+  let ics="BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//LoNiangWardrobe//CN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\n";
+  evs.forEach(c=>{
+    const verb=VERB[c.kind+"|"+c.phase]||(c.kind+c.phase+"提醒");
+    const txt=`「${c.title}」${verb}，去店铺看看哦 🎀`;
+    const atStart = c.kind==="定金" && c.phase==="开始";
+    ics+="BEGIN:VEVENT\r\n";
+    ics+=`UID:${c.date}-${c.kind}-${c.phase}-${c.title}@lo-wardrobe\r\n`;
+    ics+=`DTSTAMP:${dtstamp}\r\n`;
+    if(c.time) ics+=`DTSTART:${fmtLocal(c.date,c.time)}\r\n`;
+    else       ics+=`DTSTART;VALUE=DATE:${c.date.replace(/-/g,"")}\r\n`;
+    ics+=`SUMMARY:🎀 Lo裙${c.kind}·${c.phase==="开始"?"开始":"截止"}：${escICS(c.title)}\r\n`;
+    ics+=`DESCRIPTION:${escICS((c.brand+" "+(c.sub||"")).trim()+"\\n"+txt)}\r\n`;
+    ics+="BEGIN:VALARM\r\nTRIGGER:-P3D\r\nACTION:DISPLAY\r\nDESCRIPTION:"+escICS(txt)+"\r\nEND:VALARM\r\n";
+    ics+="BEGIN:VALARM\r\nTRIGGER:-P1D\r\nACTION:DISPLAY\r\nDESCRIPTION:"+escICS(txt)+"\r\nEND:VALARM\r\n";
+    if(atStart) ics+="BEGIN:VALARM\r\nTRIGGER:PT0S\r\nACTION:DISPLAY\r\nDESCRIPTION:"+escICS(txt)+"\r\nEND:VALARM\r\n";
+    ics+="END:VEVENT\r\n";
+  });
+  ics+="END:VCALENDAR\r\n";
+  const blob=new Blob([ics],{type:"text/calendar;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download="Lo娘衣柜-待付提醒-"+fromDate+".ics";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+  toast(`已导出 ${evs.length} 条待付提醒（${fromDate} 起，开始/结束各提前1天+3天）到 .ics，用手机打开即可写入系统日历 📲`);
 }
 
 /* ---------- 表单 ---------- */
@@ -1673,9 +1509,254 @@ function delItem(i){
 
 /* ---------- 工具 ---------- */
 function splitv(s){ return s.split(/[,，、]/).map(x=>x.trim()).filter(Boolean); }
+/* ===================== 图片抓取 ===================== */
+const API = (location.protocol==="http:"||location.protocol==="https:") ? "" : "http://127.0.0.1:8899";
+const PAY_ORDER_PRIORITY=["全款","尾款","定金","意向金","运费"];
+let crawlTimer=null, crawlPicked=null;
+
+/* 一件单品用哪个订单号去找图：优先正式订单，其次定金/意向金 */
+function mainOrder(it){
+  for(const t of PAY_ORDER_PRIORITY){
+    const p=(it.pays||[]).find(p=>p.t===t && p.o);
+    if(p) return String(p.o);
+  }
+  const any=(it.pays||[]).find(p=>p.o);
+  return any?String(any.o):"";
+}
+function safeFile(s){ return String(s||"").replace(/[\\/:*?"<>|\r\n\t]/g,"_").replace(/\s+/g,"").slice(0,60); }
+
+/* 生成「名字-类型」文件名，没名字用「类型-颜色」，重名自动加序号 */
+function crawlTasks(){
+  const used={}, out=[];
+  items.forEach(it=>{
+    const ord=mainOrder(it);
+    if(!ord) return;
+    const color=(it.colors||[])[0]||"";
+    let base=safeFile(it.name ? (it.name+"-"+it.sub) : (color ? (it.sub+"-"+color) : it.sub));
+    const n=(used[base]||0)+1; used[base]=n;
+    const file = n===1 ? base : base+"("+n+")";
+    out.push({id:it.id, orderRaw:ord, name:it.name||"", type:it.sub||"", color, shop:it.brand||"", file});
+  });
+  return out;
+}
+
+function renderCrawl(){
+  const box=document.getElementById('crawlPick');
+  if(!box) return;
+  const tasks=crawlTasks();
+  if(crawlPicked===null) crawlPicked=new Set(tasks.filter(t=>{
+    const it=items.find(i=>i.id===t.id); return !(it&&it.img);
+  }).map(t=>t.id));
+  box.innerHTML = tasks.length ? tasks.map(t=>{
+    const it=items.find(i=>i.id===t.id);
+    const hasImg=!!(it&&it.img);
+    return `<label class="pick-row">
+      <input type="checkbox" ${crawlPicked.has(t.id)?'checked':''} onchange="togglePick('${t.id}',this.checked)">
+      <span class="pf">${esc(t.file)}</span>
+      <span class="ps">${esc(t.shop)}</span>
+      <span class="po">${esc(t.orderRaw.slice(0,15))}…</span>
+      ${hasImg?'<span class="tagimg">已有图</span>':'<span class="tagno">缺图</span>'}
+    </label>`;
+  }).join('') : '<div class="empty">没有带订单号的单品</div>';
+  const c=document.getElementById('crawlCount');
+  if(c) c.textContent=`已选 ${crawlPicked.size} / ${tasks.length} 件`;
+}
+function togglePick(id,on){ on?crawlPicked.add(id):crawlPicked.delete(id); renderCrawl(); }
+function pickCrawl(mode){
+  const tasks=crawlTasks();
+  crawlPicked=new Set();
+  if(mode==='all') tasks.forEach(t=>crawlPicked.add(t.id));
+  if(mode==='noimg') tasks.forEach(t=>{ const it=items.find(i=>i.id===t.id); if(!(it&&it.img)) crawlPicked.add(t.id); });
+  renderCrawl();
+}
+
+async function checkService(silent){
+  const pill=document.getElementById('svcState'), help=document.getElementById('svcHelp');
+  if(!pill) return false;
+  try{
+    const r=await fetch(API+"/api/ping",{cache:"no-store"});
+    if(!r.ok) throw 0;
+    pill.className="svc-pill on"; pill.textContent="● 本地服务已连接";
+    help.style.display="none";
+    return true;
+  }catch(e){
+    pill.className="svc-pill off"; pill.textContent="● 本地服务未连接";
+    help.style.display="block";
+    if(!silent) toast("本地服务没启动，先双击 爬虫/start.bat");
+    return false;
+  }
+}
+
+async function startCrawl(){
+  if(!await checkService()) return;
+  const all=crawlTasks();
+  const picked=all.filter(t=>crawlPicked.has(t.id));
+  if(!picked.length){ toast("先勾选要抓图的单品"); return; }
+  const body={
+    url:document.getElementById('crawlUrl').value.trim(),
+    pages:Number(document.getElementById('crawlPages').value)||50,
+    keepOpen:!!document.getElementById('crawlKeep').value,
+    tasks:picked
+  };
+  document.getElementById('btnCrawl').disabled=true;
+  document.getElementById('crawlLog').textContent="正在启动浏览器…";
+  try{
+    const r=await fetch(API+"/api/start",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(!j.ok){ toast(j.error||"启动失败"); document.getElementById('btnCrawl').disabled=false; return; }
+    toast("爬虫跑起来啦，注意弹出的浏览器 🕷️");
+    startPolling();
+  }catch(e){
+    toast("启动失败："+e.message);
+    document.getElementById('btnCrawl').disabled=false;
+  }
+}
+async function stopCrawl(){
+  try{ await fetch(API+"/api/stop"); toast("已发送停止"); }catch(e){}
+  clearInterval(crawlTimer); crawlTimer=null;
+  document.getElementById('btnCrawl').disabled=false;
+}
+function startPolling(){
+  clearInterval(crawlTimer);
+  crawlTimer=setInterval(async()=>{
+    try{
+      const r=await fetch(API+"/api/log",{cache:"no-store"});
+      const j=await r.json();
+      paintLog(j.log||"");
+      const st=(j.status||{}).state;
+      if(!j.running && (st==="done"||st==="error")){
+        clearInterval(crawlTimer); crawlTimer=null;
+        document.getElementById('btnCrawl').disabled=false;
+        loadCrawlResult();
+      }
+    }catch(e){}
+  },1200);
+}
+function paintLog(text){
+  const box=document.getElementById('crawlLog');
+  const near = box.scrollHeight-box.scrollTop-box.clientHeight < 60;
+  box.innerHTML = esc(text).split("\n").map(l=>{
+    let c="";
+    if(l.includes("✅")||l.includes("🎀")) c="ok";
+    else if(l.includes("⚠️")) c="warn";
+    else if(l.includes("❌")) c="err";
+    return c?`<span class="${c}">${l}</span>`:l;
+  }).join("\n");
+  if(near) box.scrollTop=box.scrollHeight;
+}
+async function loadCrawlResult(){
+  try{
+    const r=await fetch(API+"/api/result",{cache:"no-store"});
+    const j=await r.json();
+    const list=((j.result||{}).items)||[];
+    const box=document.getElementById('crawlResult');
+    const t=Date.now();
+    box.innerHTML = list.length ? list.map(x=>{
+      if(!x.ok) return `<div class="cr-card bad"><div style="height:148px;display:flex;align-items:center;justify-content:center;background:var(--pink-soft);font-size:30px">🚫</div>
+        <div class="fn">${esc(x.file)}</div><div class="sm">${esc(x.error||"失败")}</div></div>`;
+      const src="爬虫消息/缩略图/"+encodeURIComponent(x.file)+"?t="+t;
+      const raw="爬虫消息/原图/"+encodeURIComponent(x.file);
+      const byShop = x.matchBy==='shop';
+      let flag;
+      if(x.confident && !byShop)      flag='<span class="flag g">✅ 订单号命中</span>';
+      else if(x.confident && byShop)  flag='<span class="flag g">✅ 店铺+标题命中</span>';
+      else if(byShop)                 flag='<span class="flag y">🏪 按店铺猜的·请核对</span>';
+      else                            flag='<span class="flag y">⚠️ 同单多件·请核对</span>';
+      return `<div class="cr-card"><a href="${raw}" target="_blank"><img src="${src}" alt=""></a>
+        <div class="fn">${esc(x.file)}</div><div class="sm">${esc((x.title||"").slice(0,20))}</div>${flag}</div>`;
+    }).join('') : '<div class="empty">还没有抓到图</div>';
+    const ok=list.filter(x=>x.ok).length;
+    document.getElementById('crawlResHint').textContent =
+      list.length?`成功 ${ok} / ${list.length}，点图可看原图；确认没问题就「应用到衣柜」`:'抓完后会显示在这里';
+  }catch(e){}
+}
+async function applyCrawlImages(){
+  if(!await checkService()) return;
+  try{
+    const r=await fetch(API+"/api/result",{cache:"no-store"});
+    const j=await r.json();
+    const list=(((j.result||{}).items)||[]).filter(x=>x.ok);
+    if(!list.length){ toast("还没有可用的图"); return; }
+    // 15 位有效数字归一化，和 lo_crawler.order_key 保持一致
+    const normOrder = s=>{
+      s=String(s==null?"":s).replace(/\s/g,"").replace(/[．]/g,".");
+      if(!s) return "";
+      let v = /^[\d.]+e[+-]?\d+$/i.test(s) ? parseFloat(s)
+             : (s.replace(/\D/g,"") ? parseFloat(s.replace(/\D/g,"")) : 0);
+      if(!v) return "";
+      return v.toPrecision(15);
+    };
+    // 衣柜里每个 item 的订单号集合，用于可靠匹配
+    const wb = items.map(i=>({it:i, keys:(i.pays||[]).map(p=>normOrder(p.o))}));
+    let n=0, miss=0, applied={};
+    list.forEach(x=>{
+      const xo = normOrder(x.orderKey);
+      // 1) 主匹配：订单号（爬到的图和衣柜单品都来自同一个淘宝订单）
+      let cand = wb.filter(o=> xo && o.keys.indexOf(xo)>=0).map(o=>o.it);
+      if(cand.length>1){            // 同一订单含多件：用名字/类型收窄
+        const base=(x.file||"").replace(/\.jpg$/i,"").toLowerCase();
+        const refined=cand.filter(it=>{
+          const nm=(it.name||"").toLowerCase(), sb=(it.sub||"").toLowerCase();
+          return (nm&&base.indexOf(nm)>=0)||(sb&&base.indexOf(sb)>=0);
+        });
+        if(refined.length) cand=refined;
+      }
+      // 2) 兜底：id 或 名字-类型
+      let it=cand[0];
+      if(!it && x.id) it=items.find(i=>i.id===x.id);
+      if(!it){
+        const base=x.file.replace(/\.jpg$/i,"");
+        it=items.find(i=>safeFile(i.name?(i.name+"-"+i.sub):((i.colors||[])[0]?(i.sub+"-"+(i.colors||[])[0]):i.sub))===base);
+      }
+      if(!it){ miss++; return; }
+      it.img="爬虫消息/缩略图/"+encodeURIComponent(x.file);
+      it.imgRaw="爬虫消息/原图/"+encodeURIComponent(x.file);
+      applied[it.id]={img:it.img, imgRaw:it.imgRaw};
+      n++;
+    });
+    // 把分配关系落盘到服务器，刷新后由 loadApplied() 自动套用，
+    // 不再只依赖浏览器 localStorage（file:// / 隐私模式 / 清缓存都会丢）。
+    try{
+      await fetch(API+"/api/apply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({map:applied})});
+    }catch(e){ /* 服务器没开也能用 localStorage，只是刷新后可能丢 */ }
+    save(); render();
+    toast(`已把 ${n} 张图放进衣柜 🎀${miss?`；${miss} 张没匹配到`:""}`);
+  }catch(e){ toast("应用失败："+e.message); }
+}
+
+async function loadApplied(){
+  // 每次页面加载时，从服务器把抓取到的商品图补充进单品的 imgs 数组，
+  // 这样即使浏览器 localStorage 被清（file://、隐私模式、清缓存），只要 seed 固化过图就能显示；
+  // 若服务器上还有更新的图，也作为「商品图」追加到本地，不会覆盖用户自己传的图。
+  try{
+    const r=await fetch(API+"/爬虫消息/applied.json",{cache:"no-store"});
+    if(!r.ok) return;
+    const j=await r.json();
+    const mp=(j&&j.map)||{};
+    let n=0;
+    for(const id in mp){
+      const it=items.find(i=>i.id===id);
+      if(it && mp[id] && mp[id].img){
+        it.imgs=it.imgs||[];
+        const src=mp[id].img, raw=mp[id].imgRaw||"";
+        const exists=it.imgs.some(im=>im.src===src || (raw && im.raw===raw));
+        if(!exists){
+          it.imgs.push({src:src, raw:raw, label:"商品图"});
+          n++;
+        }
+      }
+    }
+    if(n){ save(); render(); }
+  }catch(e){}
+}
+
 /* ===================== 工具 ===================== */
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1900); }
+function switchTab(name){
+  const b=document.querySelector(`nav button[data-tab="${name}"]`);
+  if(b) b.click();
+}
 
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
@@ -1683,12 +1764,139 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   b.classList.add('active');
   document.getElementById('tab-'+b.dataset.tab).classList.add('active');
 });
+
+/* ===================== 数据导出 ===================== */
+let exportScope="owned";                 // "owned"=我的衣柜(已有) | "wish"=想买清单
+const exportSel=new Set();               // 选中的 "cat|sub"
+function initExportSel(){
+  exportSel.clear();
+  TAXONOMY.forEach(c=>c.subs.forEach(s=>exportSel.add(c.key+"|"+s)));
+}
+function renderExportTree(){
+  const box=document.getElementById('exportTree');
+  if(!box) return;
+  box.innerHTML=TAXONOMY.map(c=>{
+    const allSel=c.subs.every(s=>exportSel.has(c.key+"|"+s));
+    const subs=c.subs.map(s=>{
+      const on=exportSel.has(c.key+"|"+s);
+      return `<label class="sub-chk"><input type="checkbox" ${on?"checked":""} onchange="toggleSub('${c.key}','${s.replace(/'/g,"\\'")}')"> ${esc(s)}</label>`;
+    }).join("");
+    return `<div class="cat-row">
+      <label class="cat-chk"><input type="checkbox" ${allSel?"checked":""} onchange="toggleCat('${c.key}',this.checked)"> <b>${c.emo} ${esc(c.name)}</b></label>
+      <div class="sub-row">${subs}</div>
+    </div>`;
+  }).join("");
+  // 设置父级 indeterminate 状态（半选）
+  box.querySelectorAll('.cat-chk input').forEach((cb,i)=>{
+    const c=TAXONOMY[i];
+    const allSel=c.subs.every(s=>exportSel.has(c.key+"|"+s));
+    const someSel=c.subs.some(s=>exportSel.has(c.key+"|"+s));
+    cb.indeterminate = !allSel && someSel;
+  });
+  updateExportCount();
+}
+function toggleCat(cat,on){
+  const c=CATMAP[cat]; if(!c) return;
+  c.subs.forEach(s=>{ const k=cat+"|"+s; if(on) exportSel.add(k); else exportSel.delete(k); });
+  renderExportTree();
+}
+function toggleSub(cat,sub){
+  const k=cat+"|"+sub;
+  if(exportSel.has(k)) exportSel.delete(k); else exportSel.add(k);
+  renderExportTree();
+}
+function filteredExportItems(){
+  return items.filter(it=>{
+    if(exportScope==="owned" && !it.owned) return false;
+    if(exportScope==="wish" && it.owned) return false;
+    if(!exportSel.has(it.cat+"|"+it.sub)) return false;
+    return true;
+  });
+}
+function updateExportCount(){
+  const n=filteredExportItems().length;
+  const el=document.getElementById('exportCount'); if(el) el.textContent=n;
+}
+function setExportScope(s,btn){
+  exportScope=s;
+  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  updateExportCount();
+}
+function exportData(){
+  const list=filteredExportItems();
+  const fmt=(document.getElementById('exportFmt')||{}).value||"csv";
+  if(fmt==="json") return exportJSON(list);
+  return exportCSV(list);
+}
+function exportJSON(list){
+  const data=JSON.stringify(list,null,2);
+  const blob=new Blob([data],{type:"application/json;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download=`Lo衣柜-${exportScope==="owned"?"已有":"想买"}-${list.length}件.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+  toast(list.length ? `已导出 ${list.length} 件到 JSON 文件 📤` : `已导出空 JSON 文件（所选分类暂无匹配单品，仅结构无内容）`);
+}
+function csvCell(v){
+  const s=String(v==null?"":v);
+  if(/[",\n\r]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+function paySummary(it){
+  const pays=it.pays||[];
+  if(!pays.length) return "";
+  return pays.map(p=>{
+    let dt="";
+    if(p.ds) dt=p.ds;
+    else if(p.dsRough && p.dsRough.y) dt=`${p.dsRough.y}年${p.dsRough.m}月${p.dsRough.p}`;
+    else if(p.d) dt=p.d;
+    if(dt && p.ts) dt+=" "+p.ts;
+    let end=p.de||"";
+    if(end && p.te) end+=" "+p.te;
+    let s=`${p.t} ¥${Number(p.a||0).toFixed(2)}`;
+    if(dt||end){ s+=" ("; if(dt) s+=dt; if(end) s+=(dt?"~":"")+end; s+=")"; }
+    if(p.o) s+=` 订单:${p.o}`;
+    return s;
+  }).join("；");
+}
+function exportCSV(list){
+  const headers=["名称","大类","子类","品牌","颜色","尺码","拥有状态","优先级","来源","已付总额","付款记录","备注"];
+  const rows=[headers.map(csvCell).join(",")];
+  list.forEach(it=>{
+    const catName=(CATMAP[it.cat]||{}).name||it.cat||"";
+    const total=(it.pays||[]).filter(p=>p.t!=="运费").reduce((s,p)=>s+(Number(p.a)||0),0);
+    rows.push([
+      it.name||"",
+      catName,
+      it.sub||"",
+      it.brand||"",
+      (it.colors||[]).join(" / "),
+      (it.sizes||[]).join(" / "),
+      it.owned?"已有":"想买",
+      it.owned?"":({most:"最想买",price:"价格合适",less:"不太想买"}[it.prio]||""),
+      it.source||"",
+      total.toFixed(2),
+      paySummary(it),
+      it.note||""
+    ].map(csvCell).join(","));
+  });
+  const csv="\uFEFF"+rows.join("\r\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download=`Lo衣柜-${exportScope==="owned"?"已有":"想买"}-${list.length}件.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+  toast(list.length ? `已导出 ${list.length} 件到 CSV 文件 📤（Excel / WPS 可直接打开）` : `已导出仅含表头的 CSV 文件 📤（所选分类暂无匹配单品，只有表头无内容）`);
+}
 document.getElementById('overlay').onclick=e=>{ if(e.target.id==='overlay') closeForm(); };
-document.getElementById('calOverlay').onclick=e=>{ if(e.target.id==='calOverlay') closeCal(); };
 document.getElementById('payOverlay').onclick=e=>{ if(e.target.id==='payOverlay') closePay(); };
 
-load(); render();
-
+load(); render(); loadApplied();
+initExportSel(); renderExportTree();
+checkService(true); loadCrawlResult();
 
 /* ---------- 图片放大灯箱 ---------- */
 function showImg(src,label){

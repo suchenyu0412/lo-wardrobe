@@ -1,0 +1,20 @@
+# ===== 私人数据 / 本地工具：绝不入库 =====
+爬虫/
+爬虫消息/
+wishimg/
+详细信息.xlsx
+_new_seed.json
+_xlsx_to_seed.py
+_insert_seed.py
+*.bak
+*.bak_*
+__pycache__/
+.profile/
+
+# 私人截图 / 素材
+1 (?).jpg
+1 (??).jpg
+
+# 系统
+.DS_Store
+Thumbs.db
